@@ -1,0 +1,25 @@
+{
+  "name": "isometric-game",
+  "version": "1.0.0",
+  "description": "A template for an isometric 2D game using Phaser.",
+  "main": "js/main.js",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "test": "vitest"
+  },
+  "keywords": [
+    "phaser",
+    "isometric",
+    "game"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "phaser": "^3.80.1",
+    "simplex-noise": "^4.0.1",
+    "vite": "^5.3.1",
+    "vitest": "^3.2.2"
+  }
+}
