@@ -18,13 +18,21 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const map = generateMap(this.mapWidth, this.mapHeight);
-    this.drawMap(map);
+    const terrainData = generateMap(this.mapWidth, this.mapHeight);
+    this.drawMap(terrainData.map);
 
     this.cameras.main.setZoom(0.5);
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.zoomKeys = this.input.keyboard.addKeys('W,S');
 
     this.add.text(10, 10, 'Use arrow keys to pan the camera.', { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
+    this.add.text(10, 30, 'Use W/S to zoom in/out.', { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
+
+    // Display terrain information
+    const { climate, hasRiver, hasCoastline } = terrainData.metadata;
+    this.add.text(10, 50, `Climate: ${climate.replace('_', ' ')}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
+    this.add.text(10, 70, `River: ${hasRiver ? 'Yes' : 'No'}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
+    this.add.text(10, 90, `Coastline: ${hasCoastline ? 'Yes' : 'No'}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
   }
 
   update() {
@@ -39,6 +47,13 @@ class GameScene extends Phaser.Scene {
       this.cameras.main.scrollY -= speed;
     } else if (this.cursors.down.isDown) {
       this.cameras.main.scrollY += speed;
+    }
+
+    const zoomSpeed = 0.01;
+    if (this.zoomKeys.W.isDown) {
+      this.cameras.main.zoom += zoomSpeed;
+    } else if (this.zoomKeys.S.isDown) {
+      this.cameras.main.zoom -= zoomSpeed;
     }
   }
 

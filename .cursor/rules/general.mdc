@@ -1,0 +1,32 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Incremental Development & Clean Code
+
+- Make changes in small, safe, and reviewable steps.
+- Use clear, descriptive names for variables, functions, and classes.
+- Keep methods and functions short (ideally 10-15 lines).
+- Write code that is easy to test and maintain.
+
+# Development steps
+
+You MUST ALWAYS follow this steps when adding a new feature or refactoring the code:
+
+- Review the [design-decisions-log.md](mdc:design-decisions-log.md) and the [project-structure.md](mdc:project-structure.md)
+- Think about the cleanest way to add the feature requested to the current codebase.
+- Add the new feature
+- Review the code and extract code duplication of code that should be in a new file to improve cohesion and reduce coupling in the code.
+- If you created a new file, add unit tests for that file, if you added logic to an existing file, add the necessary tests to the test suite of the file.
+- Review your change and add any non trivial design decisions to the design-decisions-log, include the date in dd/mm/yyyy format, (to know the current date, execute the `date` command) an explanation of the design problem and a justification of the solution. For example:
+- If you created or renamed any file, review the project-structure documentation and update it accordingly.
+- DON'T use git, the user is the only one allowed to use git.
+
+```markdown
+## 24/06/2025
+
+Design problem: All the game logic is located in the same file.
+Design solution: Extracted the pieces logic and the control logic to new files so that the game flow is clear and the different files are easy to read and test. Added unit tests to the new files. [Add here any relevant details]
+
+```
