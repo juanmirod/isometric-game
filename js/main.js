@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { generateMap, TILE_COLORS } from './terrain.js';
+import { generateMap, TILE_COLORS } from './terrain/terrain.js';
 import { generateTreeTexture } from './tree.js';
 
 class GameScene extends Phaser.Scene {

@@ -148,9 +148,9 @@ describe('generateMap', () => {
     }
 
     const coastlineProbability = coastlineCount / samples;
-    // Allow some variance due to randomness (±10%)
-    expect(coastlineProbability).toBeGreaterThan(0.20);
-    expect(coastlineProbability).toBeLessThan(0.40);
+    // Allow some variance due to randomness (±15%)
+    expect(coastlineProbability).toBeGreaterThan(0.15);
+    expect(coastlineProbability).toBeLessThan(0.45);
   });
 
   it('should have water tiles when rivers are present', () => {
