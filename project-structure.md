@@ -6,12 +6,12 @@ This project is an isometric game built with Phaser.
 
 - **`index.html`**: The main HTML file that serves as the entry point for the game. It sets up the basic HTML structure and includes the main JavaScript file.
 
-- **`js/main.js`**: This is the core of the game. It initializes the Phaser game engine, sets up the game scene, and contains the main game loop. It handles rendering the map and trees, and manages camera controls for panning and zooming.
+- **`js/main.js`**: This is the core of the game. It initializes the Phaser game engine, sets up the game scene, and contains the main game loop. It handles rendering the map with height-based positioning and trees, implements proper depth sorting for isometric elevation, and manages camera controls for panning and zooming.
 
 - **`js/terrain/`**: This folder contains all terrain-related modules:
 
-  - **`terrain.js`**: Advanced procedural terrain generation system with climate types, rivers, coastlines, and sophisticated tile placement rules
-  - **`terrain.test.js`**: Comprehensive unit tests for the terrain generation system
+  - **`terrain.js`**: Advanced procedural terrain generation system with climate types, rivers, coastlines, sophisticated tile placement rules, and height representation (0-2 levels) for true isometric elevation
+  - **`terrain.test.js`**: Comprehensive unit tests for the terrain generation system including height validation
   - **`README.md`**: Detailed documentation of the terrain generation features and API
 
 - **`js/tree.js`**: This module generates textures for the trees in the game. It provides a function to create tree textures with customizable options, such as the shape and color of the leaves.

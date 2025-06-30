@@ -22,6 +22,7 @@ You MUST ALWAYS follow this steps when adding a new feature or refactoring the c
 - Review your change and add any non trivial design decisions to the design-decisions-log, include the date in dd/mm/yyyy format, (to know the current date, execute the `date` command) an explanation of the design problem and a justification of the solution. For example:
 - If you created or renamed any file, review the project-structure documentation and update it accordingly.
 - DON'T use git, the user is the only one allowed to use git.
+- NEVER run the project to check that it works, running the tests should be enough to know that.
 
 ```markdown
 ## 24/06/2025

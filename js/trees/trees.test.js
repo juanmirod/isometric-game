@@ -6,6 +6,7 @@ const createMockScene = () => ({
   add: {
     image: vi.fn((x, y, texture) => ({
       setOrigin: vi.fn(),
+      setDepth: vi.fn(),
       destroy: vi.fn(),
       x,
       y,
@@ -140,6 +141,7 @@ describe('TreeManager', () => {
     it('should set correct sprite origin', () => {
       const mockSprite = {
         setOrigin: vi.fn(),
+        setDepth: vi.fn(),
         destroy: vi.fn()
       };
       mockScene.add.image.mockReturnValue(mockSprite);
@@ -167,6 +169,7 @@ describe('TreeManager', () => {
     it('should remove tree at specified coordinates', () => {
       const mockSprite = {
         setOrigin: vi.fn(),
+        setDepth: vi.fn(),
         destroy: vi.fn()
       };
       mockScene.add.image.mockReturnValue(mockSprite);
@@ -191,6 +194,7 @@ describe('TreeManager', () => {
     it('should remove tree by ID', () => {
       const mockSprite = {
         setOrigin: vi.fn(),
+        setDepth: vi.fn(),
         destroy: vi.fn()
       };
       mockScene.add.image.mockReturnValue(mockSprite);
@@ -213,8 +217,8 @@ describe('TreeManager', () => {
 
   describe('clearAllTrees', () => {
     it('should remove all trees', () => {
-      const mockSprite1 = { setOrigin: vi.fn(), destroy: vi.fn() };
-      const mockSprite2 = { setOrigin: vi.fn(), destroy: vi.fn() };
+      const mockSprite1 = { setOrigin: vi.fn(), setDepth: vi.fn(), destroy: vi.fn() };
+      const mockSprite2 = { setOrigin: vi.fn(), setDepth: vi.fn(), destroy: vi.fn() };
 
       mockScene.add.image
         .mockReturnValueOnce(mockSprite1)
@@ -336,9 +340,9 @@ describe('TreeManager', () => {
       });
 
       const map = [
-        ['grass', 'water', 'grass'],
-        ['sand', 'grass', 'stone'],
-        ['grass', 'grass', 'grass']
+        [{ type: 'grass', height: 0 }, { type: 'water', height: 0 }, { type: 'grass', height: 0 }],
+        [{ type: 'sand', height: 0 }, { type: 'grass', height: 0 }, { type: 'rock', height: 1 }],
+        [{ type: 'grass', height: 0 }, { type: 'grass', height: 0 }, { type: 'grass', height: 0 }]
       ];
 
       // Create a tree manager with the correct dimensions for the test map
@@ -372,7 +376,7 @@ describe('TreeManager', () => {
       testTreeManager.spawnTree(0, 0);
       expect(testTreeManager.getTreeCount()).toBe(1);
 
-      const map = [['water']];
+      const map = [[{ type: 'water', height: 0 }]];
       testTreeManager.generateTrees(map, 'prairie');
 
       expect(testTreeManager.getTreeCount()).toBe(0);
@@ -380,7 +384,7 @@ describe('TreeManager', () => {
 
     it('should not spawn trees on non-grass tiles', () => {
       const map = [
-        ['water', 'sand', 'stone']
+        [{ type: 'water', height: 0 }, { type: 'sand', height: 0 }, { type: 'rock', height: 1 }]
       ];
 
       // Create a tree manager with the correct dimensions for the test map
@@ -398,7 +402,7 @@ describe('TreeManager', () => {
     });
 
     it('should respect climate-based spawn probabilities', () => {
-      const map = [['grass']];
+      const map = [[{ type: 'grass', height: 0 }]];
 
       const testTreeManager = new TreeManager(mockScene, {
         mapWidth: 1,

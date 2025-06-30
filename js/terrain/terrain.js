@@ -16,6 +16,14 @@ export const TILE_COLORS = {
   [TILE_TYPES.SNOW]: 0xfdfefe
 };
 
+export const TILE_HEIGHTS = {
+  [TILE_TYPES.WATER]: 0,
+  [TILE_TYPES.SAND]: 0,
+  [TILE_TYPES.GRASS]: 0,
+  [TILE_TYPES.ROCK]: [1, 2], // Rock can be level 1 or 2
+  [TILE_TYPES.SNOW]: 2       // Snow is only at level 2
+};
+
 export const CLIMATE_TYPES = {
   DESERT: 'desert',
   PRAIRIE: 'prairie',
@@ -156,6 +164,17 @@ function isNearFeature(x, y, featureSet, distance = 2) {
   return false;
 }
 
+function getTileHeightForType(tileType, noiseValue) {
+  const heightConfig = TILE_HEIGHTS[tileType];
+
+  if (Array.isArray(heightConfig)) {
+    // For rock tiles, use noise to determine if it's level 1 or 2
+    return noiseValue > 0.5 ? heightConfig[1] : heightConfig[0];
+  }
+
+  return heightConfig;
+}
+
 function getTileForClimate(noiseValue, climate, x, y, river, coastline) {
   const rules = CLIMATE_TILE_RULES[climate];
   const key = `${x},${y}`;
@@ -221,7 +240,12 @@ export function generateMap(width, height) {
     for (let x = 0; x < width; x++) {
       const noiseValue = noise2D(x * noiseScale, y * noiseScale);
       const tileType = getTileForClimate(noiseValue, climate, x, y, river, coastline);
-      map[y][x] = tileType;
+      const tileHeight = getTileHeightForType(tileType, noiseValue);
+
+      map[y][x] = {
+        type: tileType,
+        height: tileHeight
+      };
     }
   }
 

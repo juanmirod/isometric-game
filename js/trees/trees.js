@@ -68,14 +68,16 @@ export class TreeManager {
 
     for (let y = 0; y < this.mapHeight; y++) {
       for (let x = 0; x < this.mapWidth; x++) {
-        const tileType = map[y][x];
+        const tileData = map[y][x];
+        const tileType = tileData.type;
+        const tileHeight = tileData.height;
 
         if (this.canSpawnTreeOnTile(tileType)) {
           // Determine how many trees to spawn on this tile
           const treesToSpawn = this.calculateTreesForTile(config);
 
           for (let i = 0; i < treesToSpawn; i++) {
-            this.spawnTreeWithRandomPosition(x, y, config);
+            this.spawnTreeWithRandomPosition(x, y, config, tileHeight);
           }
         }
       }
@@ -101,14 +103,15 @@ export class TreeManager {
  * @param {number} mapX - X coordinate on the map grid
  * @param {number} mapY - Y coordinate on the map grid
  * @param {Object} config - Climate configuration for positioning
+ * @param {number} tileHeight - Height level of the tile (0-2)
  * @returns {Object} Tree object with sprite and metadata
  */
-  spawnTreeWithRandomPosition(mapX, mapY, config) {
+  spawnTreeWithRandomPosition(mapX, mapY, config, tileHeight = 0) {
     // Generate random offset within the tile
     const offsetX = (Math.random() - 0.5) * this.tileWidth * config.treeSpacing;
     const offsetY = (Math.random() - 0.5) * this.tileHeight * config.treeSpacing;
 
-    return this.spawnTree(mapX, mapY, offsetX, offsetY);
+    return this.spawnTree(mapX, mapY, offsetX, offsetY, tileHeight);
   }
 
   /**
@@ -117,10 +120,11 @@ export class TreeManager {
    * @param {number} mapY - Y coordinate on the map grid
    * @param {number} offsetX - X offset within the tile (default: 0)
    * @param {number} offsetY - Y offset within the tile (default: 0)
+   * @param {number} tileHeight - Height level of the tile (0-2)
    * @returns {Object} Tree object with sprite and metadata
    */
-  spawnTree(mapX, mapY, offsetX = 0, offsetY = 0) {
-    const isoPosition = this.mapToIsometric(mapX, mapY);
+  spawnTree(mapX, mapY, offsetX = 0, offsetY = 0, tileHeight = 0) {
+    const isoPosition = this.mapToIsometric(mapX, mapY, tileHeight);
     const treeType = this.getRandomTreeType();
 
     // Apply positioning offset for more natural placement
@@ -129,6 +133,12 @@ export class TreeManager {
 
     const treeSprite = this.scene.add.image(finalX, finalY, treeType);
     treeSprite.setOrigin(0.5, 1);
+
+    // Set depth to ensure trees appear above terrain tiles
+    // Use the same calculation as terrain but with a large offset to ensure trees are always on top
+    const sortKey = mapY * this.mapWidth + mapX - tileHeight * 1000;
+    const treeDepth = tileHeight * 100 + sortKey + 10000; // +10000 to ensure trees are above terrain
+    treeSprite.setDepth(treeDepth);
 
     const treeData = {
       sprite: treeSprite,
@@ -139,6 +149,8 @@ export class TreeManager {
       screenX: finalX,
       screenY: finalY,
       type: treeType,
+      height: tileHeight,
+      depth: treeDepth,
       id: this.generateTreeId()
     };
 
@@ -221,11 +233,13 @@ export class TreeManager {
    * Converts map coordinates to isometric screen coordinates
    * @param {number} mapX - X coordinate on the map grid
    * @param {number} mapY - Y coordinate on the map grid
+   * @param {number} tileHeight - Height level of the tile (0-2)
    * @returns {Object} Object with x and y screen coordinates
    */
-  mapToIsometric(mapX, mapY) {
+  mapToIsometric(mapX, mapY, tileHeight = 0) {
+    const heightOffset = 20; // Same offset as used in main.js
     const isoX = (mapX - mapY) * this.tileWidth / 2;
-    const isoY = (mapX + mapY) * this.tileHeight / 2;
+    const isoY = (mapX + mapY) * this.tileHeight / 2 - (tileHeight * heightOffset);
 
     return {
       x: this.mapCenterX + isoX,

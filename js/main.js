@@ -94,17 +94,41 @@ class GameScene extends Phaser.Scene {
   drawMap(map) {
     const mapCenterX = this.cameras.main.width / 2;
     const mapCenterY = this.cameras.main.height / 4;
+    const heightOffset = 20; // Vertical offset per height level
+
+    // Store tiles for proper depth sorting
+    const tilesToRender = [];
 
     for (let y = 0; y < this.mapHeight; y++) {
       for (let x = 0; x < this.mapWidth; x++) {
-        const tileType = map[y][x];
-        const isoX = (x - y) * this.tileWidth / 2;
-        const isoY = (x + y) * this.tileHeight / 2;
+        const tileData = map[y][x];
+        const tileType = tileData.type;
+        const tileHeight = tileData.height;
 
-        const tile = this.add.image(mapCenterX + isoX, mapCenterY + isoY, tileType);
-        tile.setOrigin(0.5, 0.5);
+        const isoX = (x - y) * this.tileWidth / 2;
+        const isoY = (x + y) * this.tileHeight / 2 - (tileHeight * heightOffset);
+
+        tilesToRender.push({
+          x: mapCenterX + isoX,
+          y: mapCenterY + isoY,
+          type: tileType,
+          height: tileHeight,
+          sortKey: y * this.mapWidth + x - tileHeight * 1000 // Sort by position and height
+        });
       }
     }
+
+    // Sort tiles for proper rendering order (back to front, lower to higher)
+    tilesToRender.sort((a, b) => a.sortKey - b.sortKey);
+
+    // Render tiles in sorted order
+    tilesToRender.forEach(tileInfo => {
+      const tile = this.add.image(tileInfo.x, tileInfo.y, tileInfo.type);
+      tile.setOrigin(0.5, 0.5);
+
+      // Add depth information for visual debugging (optional)
+      tile.setDepth(tileInfo.height * 100 + tileInfo.sortKey);
+    });
 
     // Center camera on the map
     const totalHeight = (this.mapWidth + this.mapHeight) * this.tileHeight / 2;

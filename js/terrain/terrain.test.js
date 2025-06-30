@@ -15,7 +15,7 @@ describe('generateMap', () => {
     });
   });
 
-  it('should only contain valid tile types', () => {
+  it('should only contain valid tile types and heights', () => {
     const width = 10;
     const height = 10;
     const result = generateMap(width, height);
@@ -23,7 +23,12 @@ describe('generateMap', () => {
 
     result.map.forEach(row => {
       row.forEach(tile => {
-        expect(validTileTypes).toContain(tile);
+        expect(tile).toHaveProperty('type');
+        expect(tile).toHaveProperty('height');
+        expect(validTileTypes).toContain(tile.type);
+        expect(typeof tile.height).toBe('number');
+        expect(tile.height).toBeGreaterThanOrEqual(0);
+        expect(tile.height).toBeLessThanOrEqual(2);
       });
     });
   });
@@ -51,7 +56,7 @@ describe('generateMap', () => {
         desertMapFound = true;
 
         // Desert should have no grass tiles (except near water features)
-        const hasGrass = result.map.some(row => row.some(tile => tile === TILE_TYPES.GRASS));
+        const hasGrass = result.map.some(row => row.some(tile => tile.type === TILE_TYPES.GRASS));
         // If there's grass, it should be because of water features
         expect(hasGrass).toBeFalsy();
         break;
@@ -73,7 +78,7 @@ describe('generateMap', () => {
         // Prairie should have no rock, sand, or snow tiles (except near water features)
         const forbiddenTiles = [TILE_TYPES.ROCK, TILE_TYPES.SAND, TILE_TYPES.SNOW];
         const hasForbiddenTiles = result.map.some(row =>
-          row.some(tile => forbiddenTiles.includes(tile) && tile !== TILE_TYPES.WATER)
+          row.some(tile => forbiddenTiles.includes(tile.type) && tile.type !== TILE_TYPES.WATER)
         );
 
         // Allow sand near water features, but otherwise no forbidden tiles
@@ -83,9 +88,9 @@ describe('generateMap', () => {
           for (let y = 0; y < result.map.length; y++) {
             for (let x = 0; x < result.map[y].length; x++) {
               const tile = result.map[y][x];
-              if (forbiddenTiles.includes(tile) && tile !== TILE_TYPES.WATER) {
+              if (forbiddenTiles.includes(tile.type) && tile.type !== TILE_TYPES.WATER) {
                 // For prairie, sand is only allowed near water features
-                if (tile === TILE_TYPES.SAND) {
+                if (tile.type === TILE_TYPES.SAND) {
                   // Check if near water
                   let nearWater = false;
                   for (let dy = -1; dy <= 1; dy++) {
@@ -94,7 +99,7 @@ describe('generateMap', () => {
                       const nx = x + dx;
                       if (ny >= 0 && ny < result.map.length &&
                         nx >= 0 && nx < result.map[ny].length &&
-                        result.map[ny][nx] === TILE_TYPES.WATER) {
+                        result.map[ny][nx].type === TILE_TYPES.WATER) {
                         nearWater = true;
                         break;
                       }
@@ -162,7 +167,7 @@ describe('generateMap', () => {
         riverMapFound = true;
 
         // Should have water tiles for the river
-        const hasWater = result.map.some(row => row.includes(TILE_TYPES.WATER));
+        const hasWater = result.map.some(row => row.some(tile => tile.type === TILE_TYPES.WATER));
         expect(hasWater).toBeTruthy();
         break;
       }
@@ -180,13 +185,37 @@ describe('generateMap', () => {
         coastlineMapFound = true;
 
         // Should have water tiles for the coastline
-        const hasWater = result.map.some(row => row.includes(TILE_TYPES.WATER));
+        const hasWater = result.map.some(row => row.some(tile => tile.type === TILE_TYPES.WATER));
         expect(hasWater).toBeTruthy();
         break;
       }
     }
 
     expect(coastlineMapFound).toBeTruthy();
+  });
+
+  it('should assign correct heights based on tile types', () => {
+    const width = 20;
+    const height = 20;
+    const result = generateMap(width, height);
+
+    result.map.forEach(row => {
+      row.forEach(tile => {
+        switch (tile.type) {
+          case TILE_TYPES.WATER:
+          case TILE_TYPES.SAND:
+          case TILE_TYPES.GRASS:
+            expect(tile.height).toBe(0);
+            break;
+          case TILE_TYPES.ROCK:
+            expect([1, 2]).toContain(tile.height);
+            break;
+          case TILE_TYPES.SNOW:
+            expect(tile.height).toBe(2);
+            break;
+        }
+      });
+    });
   });
 
   it('should distribute climate types roughly evenly', () => {

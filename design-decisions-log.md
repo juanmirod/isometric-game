@@ -54,3 +54,21 @@ Design solution: Enhanced the TreeManager with climate-based generation system t
 - Enhanced tree objects with screen coordinates and offset tracking
 
 The system now creates much more realistic and varied forest layouts that properly reflect different climate zones, while maintaining the ability to track and manage all trees for future game mechanics.
+
+## 01/07/2025
+
+Design problem: The terrain was only represented by different colors with no visual height differences, making the isometric view flat and less engaging. Different terrain types like mountains and hills should have visual elevation.
+
+Design solution: Enhanced the terrain system with height representation that includes:
+
+- Added `TILE_HEIGHTS` configuration mapping tile types to height levels (0-2)
+- Modified map generation to include height data alongside tile type (map tiles now store objects with `type` and `height` properties)
+- Updated rendering system in main.js to position tiles vertically based on their height with 20px offset per level
+- Implemented proper depth sorting to ensure higher tiles render above lower ones
+- Updated TreeManager to position trees at correct heights matching their underlying tiles
+- Height assignment rules: sand/grass/water at sea level (0), rock at levels 1-2 (noise-based), snow only at level 2
+- Added comprehensive test coverage for height validation
+
+This creates a much more visually appealing isometric terrain with proper elevation representation while maintaining backward compatibility with existing climate and feature generation systems.
+
+**Update**: Fixed depth sorting issue where trees were rendering behind terrain tiles. Added proper depth calculation to tree sprites using the same formula as terrain tiles plus a large offset (+10000) to ensure trees always appear above their corresponding terrain. Updated all test mocks to include the setDepth method for proper test coverage.
