@@ -16,6 +16,12 @@ This project is an isometric game built with Phaser.
 
 - **`js/tree.js`**: This module generates textures for the trees in the game. It provides a function to create tree textures with customizable options, such as the shape and color of the leaves.
 
+- **`js/trees/`**: This folder contains the tree management system:
+
+  - **`trees.js`**: TreeManager class that handles tree positioning, tracking, and removal with unique IDs for each tree
+  - **`trees.test.js`**: Comprehensive unit tests for the tree management system
+  - **`README.md`**: Detailed documentation of the tree management features and API
+
 - **`vite.config.js`**: This is the configuration file for Vite, a modern build tool that provides a faster and leaner development experience for web projects.
 
 - **`package.json`**: This file manages the project's dependencies, such as Phaser and simplex-noise, and defines scripts for running and building the project.

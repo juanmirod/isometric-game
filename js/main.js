@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { generateMap, TILE_COLORS } from './terrain/terrain.js';
 import { generateTreeTexture } from './tree.js';
+import { TreeManager } from './trees/trees.js';
 
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -21,6 +22,22 @@ class GameScene extends Phaser.Scene {
     const terrainData = generateMap(this.mapWidth, this.mapHeight);
     this.drawMap(terrainData.map);
 
+    // Initialize tree manager
+    const mapCenterX = this.cameras.main.width / 2;
+    const mapCenterY = this.cameras.main.height / 4;
+
+    this.treeManager = new TreeManager(this, {
+      mapWidth: this.mapWidth,
+      mapHeight: this.mapHeight,
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight,
+      mapCenterX: mapCenterX,
+      mapCenterY: mapCenterY
+    });
+
+    // Generate trees on the map
+    this.treeManager.generateTrees(terrainData.map);
+
     this.cameras.main.setZoom(0.5);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.zoomKeys = this.input.keyboard.addKeys('W,S');
@@ -33,6 +50,7 @@ class GameScene extends Phaser.Scene {
     this.add.text(10, 50, `Climate: ${climate.replace('_', ' ')}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
     this.add.text(10, 70, `River: ${hasRiver ? 'Yes' : 'No'}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
     this.add.text(10, 90, `Coastline: ${hasCoastline ? 'Yes' : 'No'}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
+    this.add.text(10, 110, `Trees: ${this.treeManager.getTreeCount()}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
   }
 
   update() {
@@ -85,12 +103,6 @@ class GameScene extends Phaser.Scene {
 
         const tile = this.add.image(mapCenterX + isoX, mapCenterY + isoY, tileType);
         tile.setOrigin(0.5, 0.5);
-
-        if (tileType === 'grass' && Math.random() > 0.8) {
-          const treeType = Math.random() > 0.5 ? 'tree_1' : 'tree_2';
-          const tree = this.add.image(mapCenterX + isoX, mapCenterY + isoY, treeType);
-          tree.setOrigin(0.5, 1);
-        }
       }
     }
 
