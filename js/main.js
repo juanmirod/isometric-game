@@ -35,8 +35,8 @@ class GameScene extends Phaser.Scene {
       mapCenterY: mapCenterY
     });
 
-    // Generate trees on the map
-    this.treeManager.generateTrees(terrainData.map);
+    // Generate trees on the map with climate information
+    this.treeManager.generateTrees(terrainData.map, terrainData.metadata.climate);
 
     this.cameras.main.setZoom(0.5);
     this.cursors = this.input.keyboard.createCursorKeys();

@@ -16,48 +16,128 @@ export class TreeManager {
     // Array to store all tree instances for management
     this.trees = [];
 
-    // Tree spawn probability (0-1)
-    this.spawnProbability = 0.2; // 20% chance to spawn a tree on grass
-
     // Available tree types
     this.treeTypes = ['tree_1', 'tree_2'];
+
+    // Climate-based tree spawning configuration
+    this.climateTreeConfig = {
+      'desert': {
+        spawnProbability: 0.02, // Very few trees in desert
+        maxTreesPerTile: 1,
+        treeSpacing: 0.8 // Larger spacing between trees
+      },
+      'prairie': {
+        spawnProbability: 0.15, // Some trees in prairie
+        maxTreesPerTile: 2,
+        treeSpacing: 0.6
+      },
+      'sparse_forest': {
+        spawnProbability: 0.35, // Moderate tree density
+        maxTreesPerTile: 3,
+        treeSpacing: 0.4
+      },
+      'dense_forest': {
+        spawnProbability: 0.65, // High tree density
+        maxTreesPerTile: 5,
+        treeSpacing: 0.2
+      },
+      'high_mountain': {
+        spawnProbability: 0.08, // Few trees at high altitude
+        maxTreesPerTile: 1,
+        treeSpacing: 0.7
+      }
+    };
+
+    // Default configuration for unknown climate types
+    this.defaultTreeConfig = {
+      spawnProbability: 0.2,
+      maxTreesPerTile: 2,
+      treeSpacing: 0.5
+    };
   }
 
   /**
-   * Generates trees on the map based on terrain data
-   * @param {Array} map - 2D array representing the terrain map
-   */
-  generateTrees(map) {
+ * Generates trees on the map based on terrain data and climate
+ * @param {Array} map - 2D array representing the terrain map
+ * @param {string} climate - Climate type (e.g., 'dense_forest', 'prairie')
+ */
+  generateTrees(map, climate = 'prairie') {
     this.clearAllTrees();
+
+    const config = this.climateTreeConfig[climate] || this.defaultTreeConfig;
 
     for (let y = 0; y < this.mapHeight; y++) {
       for (let x = 0; x < this.mapWidth; x++) {
         const tileType = map[y][x];
 
-        if (this.canSpawnTreeOnTile(tileType) && Math.random() < this.spawnProbability) {
-          this.spawnTree(x, y);
+        if (this.canSpawnTreeOnTile(tileType)) {
+          // Determine how many trees to spawn on this tile
+          const treesToSpawn = this.calculateTreesForTile(config);
+
+          for (let i = 0; i < treesToSpawn; i++) {
+            this.spawnTreeWithRandomPosition(x, y, config);
+          }
         }
       }
     }
   }
 
   /**
-   * Spawns a single tree at the specified map coordinates
+   * Calculates how many trees should spawn on a single tile based on configuration
+   * @param {Object} config - Climate configuration object
+   * @returns {number} Number of trees to spawn (0 or more)
+   */
+  calculateTreesForTile(config) {
+    if (Math.random() >= config.spawnProbability) {
+      return 0;
+    }
+
+    // For tiles that get trees, randomly determine how many (1 to maxTreesPerTile)
+    return Math.floor(Math.random() * config.maxTreesPerTile) + 1;
+  }
+
+  /**
+ * Spawns a single tree at the specified map coordinates with random positioning within the tile
+ * @param {number} mapX - X coordinate on the map grid
+ * @param {number} mapY - Y coordinate on the map grid
+ * @param {Object} config - Climate configuration for positioning
+ * @returns {Object} Tree object with sprite and metadata
+ */
+  spawnTreeWithRandomPosition(mapX, mapY, config) {
+    // Generate random offset within the tile
+    const offsetX = (Math.random() - 0.5) * this.tileWidth * config.treeSpacing;
+    const offsetY = (Math.random() - 0.5) * this.tileHeight * config.treeSpacing;
+
+    return this.spawnTree(mapX, mapY, offsetX, offsetY);
+  }
+
+  /**
+   * Spawns a single tree at the specified map coordinates with optional positioning offset
    * @param {number} mapX - X coordinate on the map grid
    * @param {number} mapY - Y coordinate on the map grid
+   * @param {number} offsetX - X offset within the tile (default: 0)
+   * @param {number} offsetY - Y offset within the tile (default: 0)
    * @returns {Object} Tree object with sprite and metadata
    */
-  spawnTree(mapX, mapY) {
+  spawnTree(mapX, mapY, offsetX = 0, offsetY = 0) {
     const isoPosition = this.mapToIsometric(mapX, mapY);
     const treeType = this.getRandomTreeType();
 
-    const treeSprite = this.scene.add.image(isoPosition.x, isoPosition.y, treeType);
+    // Apply positioning offset for more natural placement
+    const finalX = isoPosition.x + offsetX;
+    const finalY = isoPosition.y + offsetY;
+
+    const treeSprite = this.scene.add.image(finalX, finalY, treeType);
     treeSprite.setOrigin(0.5, 1);
 
     const treeData = {
       sprite: treeSprite,
       mapX: mapX,
       mapY: mapY,
+      offsetX: offsetX,
+      offsetY: offsetY,
+      screenX: finalX,
+      screenY: finalY,
       type: treeType,
       id: this.generateTreeId()
     };
@@ -180,11 +260,60 @@ export class TreeManager {
   }
 
   /**
-   * Sets the tree spawn probability
+   * Sets the tree spawn probability for a specific climate
+   * @param {string} climate - Climate type
    * @param {number} probability - Probability value between 0 and 1
    */
-  setSpawnProbability(probability) {
-    this.spawnProbability = Math.max(0, Math.min(1, probability));
+  setClimateSpawnProbability(climate, probability) {
+    if (this.climateTreeConfig[climate]) {
+      this.climateTreeConfig[climate].spawnProbability = Math.max(0, Math.min(1, probability));
+    }
+  }
+
+  /**
+   * Gets the tree configuration for a climate
+   * @param {string} climate - Climate type
+   * @returns {Object} Climate tree configuration
+   */
+  getClimateConfig(climate) {
+    return this.climateTreeConfig[climate] || this.defaultTreeConfig;
+  }
+
+  /**
+   * Gets all trees within a radius of a specific map coordinate
+   * @param {number} mapX - X coordinate on the map grid
+   * @param {number} mapY - Y coordinate on the map grid
+   * @param {number} radius - Radius in map tiles
+   * @returns {Array} Array of tree objects within the radius
+   */
+  getTreesInRadius(mapX, mapY, radius) {
+    return this.trees.filter(tree => {
+      const distance = Math.sqrt(
+        Math.pow(tree.mapX - mapX, 2) + Math.pow(tree.mapY - mapY, 2)
+      );
+      return distance <= radius;
+    });
+  }
+
+  /**
+   * Removes all trees within a radius of a specific map coordinate
+   * @param {number} mapX - X coordinate on the map grid
+   * @param {number} mapY - Y coordinate on the map grid
+   * @param {number} radius - Radius in map tiles
+   * @returns {number} Number of trees removed
+   */
+  removeTreesInRadius(mapX, mapY, radius) {
+    const treesToRemove = this.getTreesInRadius(mapX, mapY, radius);
+
+    treesToRemove.forEach(tree => {
+      tree.sprite.destroy();
+      const index = this.trees.indexOf(tree);
+      if (index > -1) {
+        this.trees.splice(index, 1);
+      }
+    });
+
+    return treesToRemove.length;
   }
 
   /**
@@ -194,6 +323,19 @@ export class TreeManager {
   addTreeType(treeType) {
     if (!this.treeTypes.includes(treeType)) {
       this.treeTypes.push(treeType);
+    }
+  }
+
+  /**
+   * Updates climate configuration for a specific climate type
+   * @param {string} climate - Climate type
+   * @param {Object} config - Configuration object
+   */
+  updateClimateConfig(climate, config) {
+    if (this.climateTreeConfig[climate]) {
+      this.climateTreeConfig[climate] = { ...this.climateTreeConfig[climate], ...config };
+    } else {
+      this.climateTreeConfig[climate] = { ...this.defaultTreeConfig, ...config };
     }
   }
 } 

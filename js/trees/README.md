@@ -1,15 +1,16 @@
 # Trees Module
 
-This module provides a comprehensive tree management system for the isometric game. It handles tree positioning, tracking, and removal operations.
+This module provides a comprehensive tree management system for the isometric game. It handles tree positioning, tracking, and removal operations with advanced climate-based generation.
 
 ## Features
 
-- **Tree Generation**: Automatically generates trees on appropriate terrain tiles
-- **Tree Tracking**: Maintains a list of all trees with unique identifiers
-- **Tree Removal**: Support for removing trees by ID or coordinates
-- **Isometric Positioning**: Handles conversion from map coordinates to isometric screen coordinates
-- **Configurable Spawn Rules**: Customizable tree spawn probability and tile restrictions
-- **Multiple Tree Types**: Support for different tree textures
+- **Climate-Based Generation**: Tree density and spawn patterns vary by climate type (desert, prairie, sparse forest, dense forest, high mountain)
+- **Flexible Positioning**: Trees spawn anywhere within tiles with natural random positioning
+- **Multiple Trees per Tile**: No limit on trees per tile - dense forests can have multiple trees in a single tile
+- **Tree Tracking**: Maintains a list of all trees with unique identifiers and screen positions
+- **Advanced Removal**: Support for removing trees by ID, coordinates, or within a radius
+- **Isometric Positioning**: Handles conversion from map coordinates to isometric screen coordinates with offsets
+- **Configurable Climate Settings**: Each climate has customizable spawn probability, max trees per tile, and spacing
 
 ## API Reference
 
@@ -36,24 +37,30 @@ new TreeManager(scene, config);
 
 ##### Tree Generation
 
-- **`generateTrees(map)`**: Generates trees across the entire map based on terrain data
-- **`spawnTree(mapX, mapY)`**: Spawns a single tree at specific map coordinates
+- **`generateTrees(map, climate)`**: Generates trees across the entire map based on terrain data and climate type
+- **`spawnTree(mapX, mapY, offsetX, offsetY)`**: Spawns a single tree at specific map coordinates with optional positioning offset
+- **`spawnTreeWithRandomPosition(mapX, mapY, config)`**: Spawns a tree with random positioning within the tile
+- **`calculateTreesForTile(config)`**: Calculates how many trees should spawn on a single tile
 
 ##### Tree Removal
 
 - **`removeTreeById(treeId)`**: Removes a tree by its unique ID
 - **`removeTreeAt(mapX, mapY)`**: Removes a tree at specific map coordinates
+- **`removeTreesInRadius(mapX, mapY, radius)`**: Removes all trees within a radius of coordinates
 - **`clearAllTrees()`**: Removes all trees from the map
 
 ##### Tree Querying
 
 - **`getTreeAt(mapX, mapY)`**: Gets the tree object at specific coordinates
+- **`getTreesInRadius(mapX, mapY, radius)`**: Gets all trees within a radius of coordinates
 - **`getAllTrees()`**: Returns a copy of all tree objects
 - **`getTreeCount()`**: Returns the total number of trees
 
 ##### Configuration
 
-- **`setSpawnProbability(probability)`**: Sets the probability of tree spawning (0-1)
+- **`getClimateConfig(climate)`**: Gets the tree configuration for a climate type
+- **`setClimateSpawnProbability(climate, probability)`**: Sets the spawn probability for a specific climate
+- **`updateClimateConfig(climate, config)`**: Updates the complete configuration for a climate type
 - **`addTreeType(treeType)`**: Adds a new tree texture type to the available types
 
 ##### Utility

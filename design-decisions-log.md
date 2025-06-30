@@ -39,3 +39,18 @@ The TreeManager provides:
 - Tree count tracking and display
 
 This separation allows for future game mechanics like tree harvesting, environmental changes, or resource management while keeping the main game loop clean and focused.
+
+## 01/07/2025
+
+Design problem: Tree positioning was too rigid with only one tree per tile positioned at the center, and tree density was constant regardless of terrain climate type. This made forests look unrealistic and didn't reflect the natural variation between different climate zones.
+
+Design solution: Enhanced the TreeManager with climate-based generation system that includes:
+
+- Climate-specific configurations for spawn probability, max trees per tile, and tree spacing
+- Flexible positioning system allowing trees to spawn anywhere within tiles using random offsets
+- Support for multiple trees per tile with no artificial limits
+- Climate types: desert (2% probability, 1 tree max), prairie (15%, 2 trees max), sparse_forest (35%, 3 trees max), dense_forest (65%, 5 trees max), high_mountain (8%, 1 tree max)
+- Added radius-based operations for getting and removing trees in areas
+- Enhanced tree objects with screen coordinates and offset tracking
+
+The system now creates much more realistic and varied forest layouts that properly reflect different climate zones, while maintaining the ability to track and manage all trees for future game mechanics.
