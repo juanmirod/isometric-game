@@ -193,6 +193,7 @@ describe('NPC', () => {
       });
 
       expect(npc.isNicePlace(2, 2)).toBe(true);
+      expect(mockTreeManager.getTreesInRadius).toHaveBeenCalledWith(2, 2, 0.5);
     });
 
     it('should return true for sand tiles with trees', () => {
@@ -207,6 +208,7 @@ describe('NPC', () => {
       });
 
       expect(npc.isNicePlace(2, 2)).toBe(true);
+      expect(mockTreeManager.getTreesInRadius).toHaveBeenCalledWith(2, 2, 0.5);
     });
   });
 

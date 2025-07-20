@@ -49,8 +49,8 @@ class GameScene extends Phaser.Scene {
       mapCenterY: mapCenterY,
       mapData: terrainData.map,
       treeManager: this.treeManager,
-      maxNpcs: 3,
-      spawnInterval: 8000 // 8 seconds
+      maxNpcs: 300,
+      spawnInterval: 2000 // 8 seconds
     });
 
     this.cameras.main.setZoom(0.5);

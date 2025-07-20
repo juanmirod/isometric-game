@@ -294,40 +294,67 @@ export class TreeManager {
   }
 
   /**
-   * Gets all trees within a radius of a specific map coordinate
+   * Helper function to calculate isometric distance between two points
+   * @param {number} x1 - X coordinate of the first point
+   * @param {number} y1 - Y coordinate of the first point
+   * @param {number} x2 - X coordinate of the second point
+   * @param {number} y2 - Y coordinate of the second point
+   * @returns {number} The calculated distance
+   */
+  distance(x1, y1, x2, y2) {
+    const dx = x1 - x2;
+    const dy = y1 - y2;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  /**
+   * Gets all trees within a certain radius of a map coordinate
    * @param {number} mapX - X coordinate on the map grid
    * @param {number} mapY - Y coordinate on the map grid
    * @param {number} radius - Radius in map tiles
    * @returns {Array} Array of tree objects within the radius
    */
   getTreesInRadius(mapX, mapY, radius) {
+    const centerIso = this.mapToIsometric(mapX, mapY);
+
     return this.trees.filter(tree => {
-      const distance = Math.sqrt(
-        Math.pow(tree.mapX - mapX, 2) + Math.pow(tree.mapY - mapY, 2)
+      const distance = this.distance(
+        centerIso.x,
+        centerIso.y,
+        tree.screenX,
+        tree.screenY
       );
-      return distance <= radius;
+      return distance <= radius * (this.tileWidth / 2);
     });
   }
 
   /**
-   * Removes all trees within a radius of a specific map coordinate
+   * Removes all trees within a certain radius of a map coordinate
    * @param {number} mapX - X coordinate on the map grid
    * @param {number} mapY - Y coordinate on the map grid
    * @param {number} radius - Radius in map tiles
    * @returns {number} Number of trees removed
    */
   removeTreesInRadius(mapX, mapY, radius) {
-    const treesToRemove = this.getTreesInRadius(mapX, mapY, radius);
+    const centerIso = this.mapToIsometric(mapX, mapY);
+    let removedCount = 0;
 
-    treesToRemove.forEach(tree => {
-      tree.sprite.destroy();
-      const index = this.trees.indexOf(tree);
-      if (index > -1) {
-        this.trees.splice(index, 1);
+    this.trees = this.trees.filter(tree => {
+      const distance = this.distance(
+        centerIso.x,
+        centerIso.y,
+        tree.screenX,
+        tree.screenY
+      );
+      if (distance <= radius * (this.tileWidth / 2)) {
+        tree.sprite.destroy();
+        removedCount++;
+        return false;
       }
+      return true;
     });
 
-    return treesToRemove.length;
+    return removedCount;
   }
 
   /**

@@ -122,32 +122,19 @@ export class NPC {
       return false;
     }
 
-    // Must have at least one tree nearby (same tile or adjacent tiles)
+    // Must have at least one tree on the same tile
     return this.hasTreeNearby(mapX, mapY);
   }
 
   /**
-   * Checks if there's a tree at the current position or adjacent positions
+   * Checks if there's a tree at the current position.
    */
   hasTreeNearby(mapX, mapY) {
     if (!this.treeManager) return false;
 
-    // Check current tile and adjacent tiles
-    for (let dx = -1; dx <= 1; dx++) {
-      for (let dy = -1; dy <= 1; dy++) {
-        const checkX = mapX + dx;
-        const checkY = mapY + dy;
-
-        if (checkX >= 0 && checkX < this.mapWidth && checkY >= 0 && checkY < this.mapHeight) {
-          const treesAtPosition = this.treeManager.getTreesInRadius(checkX, checkY, 0);
-          if (treesAtPosition.length > 0) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
+    // Check current tile
+    const treesAtPosition = this.treeManager.getTreesInRadius(mapX, mapY, 0.2);
+    return treesAtPosition.length > 0;
   }
 
   /**

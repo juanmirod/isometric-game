@@ -423,4 +423,37 @@ describe('TreeManager', () => {
       Math.random = originalRandom;
     });
   });
+
+  describe('distance', () => {
+    it('should calculate the correct distance between two points', () => {
+      const dist = treeManager.distance(0, 0, 3, 4);
+      expect(dist).toBe(5);
+    });
+  });
+
+  describe('getTreesInRadius', () => {
+    it('should return trees within the specified radius', () => {
+      treeManager.spawnTree(5, 5); // Center
+      treeManager.spawnTree(5, 6); // Nearby
+      treeManager.spawnTree(3, 3); // Far
+
+      const nearbyTrees = treeManager.getTreesInRadius(5, 5, 1.5);
+      expect(nearbyTrees).toHaveLength(2);
+      expect(nearbyTrees.some(t => t.mapX === 5 && t.mapY === 5)).toBe(true);
+      expect(nearbyTrees.some(t => t.mapX === 5 && t.mapY === 6)).toBe(true);
+    });
+  });
+
+  describe('removeTreesInRadius', () => {
+    it('should remove trees within the specified radius', () => {
+      treeManager.spawnTree(5, 5); // Center
+      treeManager.spawnTree(5, 6); // Nearby
+      treeManager.spawnTree(3, 3); // Far
+
+      const removedCount = treeManager.removeTreesInRadius(5, 5, 1.5);
+      expect(removedCount).toBe(2);
+      expect(treeManager.getTreeCount()).toBe(1);
+      expect(treeManager.getTreeAt(3, 3)).not.toBeNull();
+    });
+  });
 }); 
