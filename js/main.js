@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { generateMap, TILE_COLORS } from './terrain/terrain.js';
 import { generateTreeTexture } from './tree.js';
 import { TreeManager } from './trees/trees.js';
+import { NPCManager } from './npcs/npcs.js';
 
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -38,6 +39,20 @@ class GameScene extends Phaser.Scene {
     // Generate trees on the map with climate information
     this.treeManager.generateTrees(terrainData.map, terrainData.metadata.climate);
 
+    // Initialize NPC manager
+    this.npcManager = new NPCManager(this, {
+      mapWidth: this.mapWidth,
+      mapHeight: this.mapHeight,
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight,
+      mapCenterX: mapCenterX,
+      mapCenterY: mapCenterY,
+      mapData: terrainData.map,
+      treeManager: this.treeManager,
+      maxNpcs: 3,
+      spawnInterval: 8000 // 8 seconds
+    });
+
     this.cameras.main.setZoom(0.5);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.zoomKeys = this.input.keyboard.addKeys('W,S');
@@ -51,9 +66,15 @@ class GameScene extends Phaser.Scene {
     this.add.text(10, 70, `River: ${hasRiver ? 'Yes' : 'No'}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
     this.add.text(10, 90, `Coastline: ${hasCoastline ? 'Yes' : 'No'}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
     this.add.text(10, 110, `Trees: ${this.treeManager.getTreeCount()}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
+    this.add.text(10, 130, `NPCs: ${this.npcManager.getNPCCount()}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
   }
 
-  update() {
+  update(time) {
+    // Update NPCs
+    if (this.npcManager) {
+      this.npcManager.update(time);
+    }
+
     const speed = 10;
     if (this.cursors.left.isDown) {
       this.cameras.main.scrollX -= speed;

@@ -22,6 +22,12 @@ This project is an isometric game built with Phaser.
   - **`trees.test.js`**: Comprehensive unit tests covering climate configurations, tree positioning, and removal operations
   - **`README.md`**: Complete documentation of the climate-based tree generation API and features
 
+- **`js/npcs/`**: This folder contains the NPC (Non-Player Character) system:
+
+  - **`npcs.js`**: NPC and NPCManager classes implementing state machine behavior, intelligent spawning, and pathfinding for NPCs that search for nice places near trees
+  - **`npcs.test.js`**: Comprehensive unit tests covering NPC state transitions, movement validation, place evaluation, and manager functionality
+  - **`README.md`**: Complete documentation of the NPC system API, state machines, and integration guide
+
 - **`vite.config.js`**: This is the configuration file for Vite, a modern build tool that provides a faster and leaner development experience for web projects.
 
 - **`package.json`**: This file manages the project's dependencies, such as Phaser and simplex-noise, and defines scripts for running and building the project.

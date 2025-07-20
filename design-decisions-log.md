@@ -72,3 +72,18 @@ Design solution: Enhanced the terrain system with height representation that inc
 This creates a much more visually appealing isometric terrain with proper elevation representation while maintaining backward compatibility with existing climate and feature generation systems.
 
 **Update**: Fixed depth sorting issue where trees were rendering behind terrain tiles. Added proper depth calculation to tree sprites using the same formula as terrain tiles plus a large offset (+10000) to ensure trees always appear above their corresponding terrain. Updated all test mocks to include the setDepth method for proper test coverage.
+
+## 03/07/2025
+
+Design problem: The game needed NPCs (Non-Player Characters) that could autonomously navigate the terrain, enter from borders, and find suitable places to settle based on environmental conditions.
+
+Design solution: Created a comprehensive NPC system with state machine architecture in js/npcs/ folder that includes:
+
+- State Machine Implementation: NPCs have two states (SEARCHING and PLACE_FOUND) with clear transitions and behaviors
+- Intelligent Movement: NPCs enter from valid border positions, move randomly every 2 seconds, and avoid water/elevated terrain
+- Place Evaluation: NPCs check their position every second and settle when they find sand/grass tiles with nearby trees
+- Visual Representation: Red rectangles (shorter than trees) with proper isometric positioning and depth sorting
+- Automatic Management: NPCManager handles spawning, updates, and lifecycle management with configurable limits and intervals
+- Comprehensive Testing: 43 unit tests covering all functionality including state transitions, movement validation, and spawning logic
+
+The system integrates seamlessly with existing terrain and tree systems, using terrain data for movement validation and tree proximity for place evaluation. This creates dynamic, autonomous characters that interact meaningfully with the generated environment while maintaining clean separation of concerns.
