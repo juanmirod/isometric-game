@@ -24,7 +24,7 @@ This project is an isometric game built with Phaser.
 
 - **`js/npcs/`**: This folder contains the NPC (Non-Player Character) system:
 
-  - **`npcs.js`**: NPC and NPCManager classes implementing state machine behavior, intelligent spawning, and pathfinding for NPCs that search for nice places near trees
+  - **`npcs.js`**: NPC and NPCManager classes implementing state machine behavior, intelligent spawning, and smooth, tween-based movement for NPCs that search for nice places near trees
   - **`npcs.test.js`**: Comprehensive unit tests covering NPC state transitions, movement validation, place evaluation, and manager functionality
   - **`README.md`**: Complete documentation of the NPC system API, state machines, and integration guide
 

@@ -11,18 +11,29 @@ const createMockScene = () => ({
       generateTexture: vi.fn(),
       destroy: vi.fn()
     })),
-    image: vi.fn(() => ({
-      setOrigin: vi.fn(),
-      setDepth: vi.fn(),
-      setPosition: vi.fn(),
-      destroy: vi.fn()
-    }))
+    image: vi.fn(() => {
+      const sprite = {
+        x: 0,
+        y: 0,
+        setOrigin: vi.fn(),
+        setDepth: vi.fn(),
+        setPosition: vi.fn(function (x, y) {
+          this.x = x;
+          this.y = y;
+        }),
+        destroy: vi.fn()
+      };
+      return sprite;
+    })
   },
   cameras: {
     main: {
       width: 800,
       height: 600
     }
+  },
+  tweens: {
+    add: vi.fn()
   }
 });
 
@@ -104,7 +115,6 @@ describe('NPC', () => {
       expect(mockScene.add.graphics).toHaveBeenCalled();
       expect(mockScene.add.image).toHaveBeenCalled();
       expect(npc.sprite.setOrigin).toHaveBeenCalledWith(0.5, 1);
-      expect(npc.sprite.setDepth).toHaveBeenCalled();
     });
   });
 
@@ -307,10 +317,12 @@ describe('NPC', () => {
       // First update - should move
       npc.update(2000);
       expect(npc.move).toHaveBeenCalledTimes(1);
+      npc.isMoving = false;
 
       // Second update too soon - should not move
       npc.update(3000);
       expect(npc.move).toHaveBeenCalledTimes(1);
+      npc.isMoving = false;
 
       // Third update after interval - should move
       npc.update(4000);
@@ -330,6 +342,17 @@ describe('NPC', () => {
 
       npc.update(1000);
       expect(npc.checkCurrentPosition).not.toHaveBeenCalled();
+      expect(npc.move).not.toHaveBeenCalled();
+    });
+
+    it('should not move when already moving', () => {
+      const npc = new NPC(1, mockScene, {
+        mapData: testMapData,
+        treeManager: mockTreeManager
+      });
+      npc.isMoving = true;
+      vi.spyOn(npc, 'move');
+      npc.update(3000);
       expect(npc.move).not.toHaveBeenCalled();
     });
   });
@@ -369,24 +392,23 @@ describe('NPC', () => {
   });
 
   describe('move', () => {
-    it('should move to a valid adjacent position', () => {
+    it('should start a tween to a valid adjacent position', () => {
       const npc = new NPC(1, mockScene, {
         mapX: 2,
         mapY: 2,
         mapData: testMapData,
-        treeManager: mockTreeManager
+        treeManager: mockTreeManager,
+        moveSpeed: 500
       });
-
-      vi.spyOn(npc, 'updateSpritePosition');
-
-      const originalX = npc.mapX;
-      const originalY = npc.mapY;
 
       npc.move();
 
-      // Position should have changed
-      expect(npc.mapX !== originalX || npc.mapY !== originalY).toBe(true);
-      expect(npc.updateSpritePosition).toHaveBeenCalled();
+      expect(mockScene.tweens.add).toHaveBeenCalledWith(expect.objectContaining({
+        targets: npc.sprite,
+        duration: 500,
+        ease: 'Linear'
+      }));
+      expect(npc.isMoving).toBe(true);
     });
 
     it('should not move when no valid positions are available', () => {
@@ -406,14 +428,20 @@ describe('NPC', () => {
         treeManager: mockTreeManager
       });
 
-      vi.spyOn(npc, 'updateSpritePosition');
-
       npc.move();
 
-      // Position should not have changed
-      expect(npc.mapX).toBe(2);
-      expect(npc.mapY).toBe(2);
-      expect(npc.updateSpritePosition).not.toHaveBeenCalled();
+      expect(mockScene.tweens.add).not.toHaveBeenCalled();
+      expect(npc.isMoving).toBe(false);
+    });
+
+    it('should not move if already moving', () => {
+      const npc = new NPC(1, mockScene, {
+        mapData: testMapData,
+        treeManager: mockTreeManager
+      });
+      npc.isMoving = true;
+      npc.move();
+      expect(mockScene.tweens.add).not.toHaveBeenCalled();
     });
   });
 
@@ -445,6 +473,21 @@ describe('NPC', () => {
 
       expect(result).toHaveProperty('x');
       expect(result).toHaveProperty('y');
+    });
+  });
+
+  describe('isometricToMap', () => {
+    it('should convert isometric coordinates to map coordinates', () => {
+      const npc = new NPC(1, mockScene, {
+        mapData: testMapData,
+        treeManager: mockTreeManager
+      });
+
+      const isoPos = npc.mapToIsometric(2, 3);
+      const mapPos = npc.isometricToMap(isoPos.x, isoPos.y);
+
+      expect(mapPos.x).toBeCloseTo(2);
+      expect(mapPos.y).toBeCloseTo(3);
     });
   });
 

@@ -8,7 +8,8 @@ import { TILE_TYPES } from '../terrain/terrain.js';
 // NPC states
 export const NPC_STATES = {
   SEARCHING: 'searching',
-  PLACE_FOUND: 'place_found'
+  PLACE_FOUND: 'place_found',
+  MOVING: 'moving'
 };
 
 /**
@@ -24,8 +25,9 @@ export class NPC {
     this.sprite = null;
     this.lastStateCheck = 0;
     this.stateCheckInterval = 1000; // Check every second
-    this.moveSpeed = config.moveSpeed || 2000; // Time between moves in ms
+    this.moveSpeed = config.moveSpeed || 2000; // Time to move one tile in ms
     this.lastMove = 0;
+    this.isMoving = false;
 
     // NPC appearance
     this.width = config.width || 20;
@@ -72,7 +74,7 @@ export class NPC {
    */
   update(time) {
     // Only update if in searching state
-    if (this.state === NPC_STATES.SEARCHING) {
+    if (this.state === NPC_STATES.SEARCHING && !this.isMoving) {
       // Check if it's time to evaluate current position
       if (time - this.lastStateCheck >= this.stateCheckInterval) {
         this.checkCurrentPosition();
@@ -152,6 +154,8 @@ export class NPC {
    * Moves the NPC to a random adjacent position
    */
   move() {
+    if (this.isMoving) return;
+
     // Get possible moves (4 directions)
     const directions = [
       { dx: 0, dy: -1 }, // North
@@ -174,11 +178,29 @@ export class NPC {
 
     // Choose random valid move
     const move = validMoves[Math.floor(Math.random() * validMoves.length)];
-    this.mapX += move.dx;
-    this.mapY += move.dy;
+    const newMapX = this.mapX + move.dx;
+    const newMapY = this.mapY + move.dy;
 
-    // Update sprite position
-    this.updateSpritePosition();
+    this.isMoving = true;
+
+    const targetPosition = this.mapToIsometric(newMapX, newMapY);
+
+    this.scene.tweens.add({
+      targets: this.sprite,
+      x: targetPosition.x,
+      y: targetPosition.y,
+      duration: this.moveSpeed,
+      ease: 'Linear',
+      onUpdate: () => {
+        this.updateDepth();
+      },
+      onComplete: () => {
+        this.mapX = newMapX;
+        this.mapY = newMapY;
+        this.isMoving = false;
+        this.updateDepth(); // Final depth update
+      }
+    });
   }
 
   /**
@@ -219,9 +241,17 @@ export class NPC {
   updateDepth() {
     if (!this.sprite) return;
 
-    const tileData = this.mapData[this.mapY][this.mapX];
+    const currentMapPos = this.isometricToMap(this.sprite.x, this.sprite.y);
+    const mapY = Math.round(currentMapPos.y);
+    const mapX = Math.round(currentMapPos.x);
+
+    if (mapY < 0 || mapY >= this.mapHeight || mapX < 0 || mapX >= this.mapWidth) return;
+
+    const tileData = this.mapData[mapY][mapX];
+    if (!tileData) return;
+
     const tileHeight = tileData.height;
-    const sortKey = this.mapY * this.mapWidth + this.mapX - tileHeight * 1000;
+    const sortKey = mapY * this.mapWidth + mapX - tileHeight * 1000;
     const npcDepth = tileHeight * 100 + sortKey + 20000; // Above trees (+20000)
     this.sprite.setDepth(npcDepth);
   }
@@ -241,6 +271,23 @@ export class NPC {
       x: this.mapCenterX + isoX,
       y: this.mapCenterY + isoY
     };
+  }
+
+  /**
+   * Converts isometric screen coordinates to map coordinates
+   */
+  isometricToMap(isoX, isoY) {
+    const tileData = this.mapData[this.mapY][this.mapX];
+    const tileHeight = tileData.height;
+    const heightOffset = 20; // Same as terrain rendering
+
+    const isoX1 = isoX - this.mapCenterX;
+    const isoY1 = isoY - this.mapCenterY + (tileHeight * heightOffset);
+
+    const mapX = (isoX1 / (this.tileWidth / 2) + isoY1 / (this.tileHeight / 2)) / 2;
+    const mapY = (isoY1 / (this.tileHeight / 2) - isoX1 / (this.tileWidth / 2)) / 2;
+
+    return { x: mapX, y: mapY };
   }
 
   /**

@@ -87,3 +87,15 @@ Design solution: Created a comprehensive NPC system with state machine architect
 - Comprehensive Testing: 43 unit tests covering all functionality including state transitions, movement validation, and spawning logic
 
 The system integrates seamlessly with existing terrain and tree systems, using terrain data for movement validation and tree proximity for place evaluation. This creates dynamic, autonomous characters that interact meaningfully with the generated environment while maintaining clean separation of concerns.
+
+## 20/07/2025
+
+Design problem: The NPCs in the game moved in a discrete, tile-by-tile manner, which looked like a turn-based game rather than a real-time one. The movement needed to be smooth and continuous.
+
+Design solution: Reworked the NPC movement logic to use tweens for smooth animation between tiles:
+
+- **Tween-based Movement**: Replaced the direct modification of `mapX` and `mapY` with a tween that animates the NPC's sprite from its current position to the target tile.
+- **Continuous Depth Sorting**: The NPC's depth is now updated continuously during the tween using an `onUpdate` callback. This ensures that the NPC is correctly rendered in front of or behind other objects as it moves across the isometric map.
+- **State Management**: Introduced an `isMoving` flag to prevent the NPC from starting a new movement while a tween is in progress.
+- **Coordinate Conversion**: Added an `isometricToMap` function to convert the sprite's screen coordinates back to map coordinates, which is necessary for the continuous depth sorting.
+- **Testing**: Updated the existing tests to account for the new tween-based movement and added new tests to verify the correct behavior of the `isometricToMap` function.
