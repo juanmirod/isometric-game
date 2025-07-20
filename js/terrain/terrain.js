@@ -114,11 +114,13 @@ function generateCoastline(width, height) {
 
   // Determine coastline depth (how far inland it goes)
   const maxDepth = Math.floor(Math.min(width, height) * 0.3);
+  // minDepth should be almost the same to maxDepth to get a smooth coastline
+  const minDepth = maxDepth - 2;
 
   switch (side) {
     case 0: // Top coastline
       for (let x = 0; x < width; x++) {
-        const depth = Math.floor(Math.random() * maxDepth) + 1;
+        const depth = Math.floor(Math.random() * (maxDepth - minDepth + 1)) + minDepth;
         for (let y = 0; y < depth; y++) {
           coastline.add(`${x},${y}`);
         }
@@ -126,7 +128,7 @@ function generateCoastline(width, height) {
       break;
     case 1: // Right coastline
       for (let y = 0; y < height; y++) {
-        const depth = Math.floor(Math.random() * maxDepth) + 1;
+        const depth = Math.floor(Math.random() * (maxDepth - minDepth + 1)) + minDepth;
         for (let x = width - depth; x < width; x++) {
           coastline.add(`${x},${y}`);
         }
@@ -134,7 +136,7 @@ function generateCoastline(width, height) {
       break;
     case 2: // Bottom coastline
       for (let x = 0; x < width; x++) {
-        const depth = Math.floor(Math.random() * maxDepth) + 1;
+        const depth = Math.floor(Math.random() * (maxDepth - minDepth + 1)) + minDepth;
         for (let y = height - depth; y < height; y++) {
           coastline.add(`${x},${y}`);
         }
@@ -142,7 +144,7 @@ function generateCoastline(width, height) {
       break;
     case 3: // Left coastline
       for (let y = 0; y < height; y++) {
-        const depth = Math.floor(Math.random() * maxDepth) + 1;
+        const depth = Math.floor(Math.random() * (maxDepth - minDepth + 1)) + minDepth;
         for (let x = 0; x < depth; x++) {
           coastline.add(`${x},${y}`);
         }
