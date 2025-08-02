@@ -259,4 +259,150 @@ export function generateMap(width, height) {
       hasCoastline
     }
   };
+}
+
+export class TerrainRenderer {
+  constructor(scene, config) {
+    this.scene = scene;
+    this.tileWidth = config.tileWidth;
+    this.tileHeight = config.tileHeight;
+    this.mapWidth = config.mapWidth;
+    this.mapHeight = config.mapHeight;
+    this.heightOffset = config.heightOffset;
+  }
+
+  generateTileTextures() {
+    for (const [name, color] of Object.entries(TILE_COLORS)) {
+      let graphics = this.scene.add.graphics();
+      graphics.fillStyle(color, 1);
+      graphics.beginPath();
+      graphics.moveTo(0, this.tileHeight / 2);
+      graphics.lineTo(this.tileWidth / 2, 0);
+      graphics.lineTo(this.tileWidth, this.tileHeight / 2);
+      graphics.lineTo(this.tileWidth / 2, this.tileHeight);
+      graphics.closePath();
+      graphics.fillPath();
+      graphics.generateTexture(name, this.tileWidth, this.tileHeight);
+      graphics.destroy();
+    }
+  }
+
+  renderMap(map, mapCenterX, mapCenterY) {
+    const heightOffset = this.heightOffset;
+
+    // Store tiles for proper depth sorting
+    const tilesToRender = [];
+
+    for (let y = 0; y < this.mapHeight; y++) {
+      for (let x = 0; x < this.mapWidth; x++) {
+        const tileData = map[y][x];
+        const tileType = tileData.type;
+        const tileHeight = tileData.height;
+
+        const isoX = (x - y) * this.tileWidth / 2;
+        const isoY = (x + y) * this.tileHeight / 2 - (tileHeight * heightOffset);
+
+        tilesToRender.push({
+          x: mapCenterX + isoX,
+          y: mapCenterY + isoY,
+          type: tileType,
+          height: tileHeight,
+          sortKey: y * this.mapWidth + x, // Sort by position for drawing from back to front
+          mapX: x,
+          mapY: y
+        });
+      }
+    }
+
+    // Sort tiles for proper rendering order (back to front)
+    tilesToRender.sort((a, b) => a.sortKey - b.sortKey);
+
+    // Render tiles in sorted order
+    tilesToRender.forEach(tileInfo => {
+      const { x: tileX, y: tileY, mapX, mapY, type, height } = tileInfo;
+      const container = this.scene.add.container(tileX, tileY);
+      // Fix depth calculation: higher tiles should have higher depth values to render in front
+      container.setDepth(tileY + (height * heightOffset));
+
+      // Draw tile sides if elevated
+      if (height > 0) {
+        const graphics = this.scene.add.graphics();
+        const tileColor = TILE_COLORS[type];
+        const rightSideColor = Phaser.Display.Color.ValueToColor(tileColor).darken(20).color;
+        const leftSideColor = Phaser.Display.Color.ValueToColor(tileColor).darken(40).color;
+
+        const neighbors = [
+          { x: mapX + 1, y: mapY, side: 'bottom_left' },  // SE
+          { x: mapX, y: mapY + 1, side: 'bottom_right' }, // SW
+          { x: mapX - 1, y: mapY, side: 'top_right' },   // NW
+          { x: mapX, y: mapY - 1, side: 'top_left' }    // NE
+        ];
+
+        neighbors.forEach(n => {
+          let neighborHeight = 0;
+          if (n.x >= 0 && n.x < this.mapWidth && n.y >= 0 && n.y < this.mapHeight) {
+            neighborHeight = map[n.y][n.x].height;
+          }
+
+          if (height > neighborHeight) {
+            const sideHeight = (height - neighborHeight) * heightOffset;
+
+            switch (n.side) {
+              case 'bottom_left': // SE face
+                graphics.fillStyle(rightSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(this.tileWidth / 2, 0);
+                graphics.lineTo(0, this.tileHeight / 2);
+                graphics.lineTo(0, this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+              case 'bottom_right': // SW face
+                graphics.fillStyle(leftSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(-this.tileWidth / 2, 0);
+                graphics.lineTo(0, this.tileHeight / 2);
+                graphics.lineTo(0, this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(-this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+              case 'top_right': // NW face
+                graphics.fillStyle(leftSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(-this.tileWidth / 2, 0);
+                graphics.lineTo(0, -this.tileHeight / 2);
+                graphics.lineTo(0, -this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(-this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+              case 'top_left': // NE face
+                graphics.fillStyle(rightSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(this.tileWidth / 2, 0);
+                graphics.lineTo(0, -this.tileHeight / 2);
+                graphics.lineTo(0, -this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+            }
+          }
+        });
+
+        container.add(graphics);
+      }
+
+      // Draw tile top
+      const tileTop = this.scene.add.image(0, 0, type);
+      tileTop.setOrigin(0.5, 0.5);
+      container.add(tileTop);
+    });
+
+    // Center camera on the map
+    const totalHeight = (this.mapWidth + this.mapHeight) * this.tileHeight / 2;
+    this.scene.cameras.main.centerOn(mapCenterX, mapCenterY + totalHeight / 2 - this.tileHeight / 2);
+  }
 } 

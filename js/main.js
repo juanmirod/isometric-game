@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { generateMap, TILE_COLORS } from './terrain/terrain.js';
+import { generateMap, TerrainRenderer } from './terrain/terrain.js';
 import { generateTreeTexture } from './tree.js';
 import { TreeManager } from './trees/trees.js';
 import { NPCManager } from './npcs/npcs.js';
@@ -22,19 +22,29 @@ class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.generateTileTextures();
+    // Initialize terrain renderer
+    this.terrainRenderer = new TerrainRenderer(this, {
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight,
+      mapWidth: this.mapWidth,
+      mapHeight: this.mapHeight,
+      heightOffset: HEIGHT_OFFSET
+    });
+
+    this.terrainRenderer.generateTileTextures();
     generateTreeTexture(this, { name: 'tree_1', leavesShape: 'circle' });
     generateTreeTexture(this, { name: 'tree_2', leavesShape: 'triangle', leavesColor: TREE_LEAVES_COLOR_ALT });
   }
 
   create() {
     const terrainData = generateMap(this.mapWidth, this.mapHeight);
-    this.drawMap(terrainData.map);
 
-    // Initialize tree manager
+    // Render terrain using terrain renderer
     const mapCenterX = this.cameras.main.width / 2;
     const mapCenterY = this.cameras.main.height / 4;
+    this.terrainRenderer.renderMap(terrainData.map, mapCenterX, mapCenterY);
 
+    // Initialize tree manager
     this.treeManager = new TreeManager(this, {
       mapWidth: this.mapWidth,
       mapHeight: this.mapHeight,
@@ -104,142 +114,7 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  generateTileTextures() {
-    for (const [name, color] of Object.entries(TILE_COLORS)) {
-      let graphics = this.add.graphics();
-      graphics.fillStyle(color, 1);
-      graphics.beginPath();
-      graphics.moveTo(0, this.tileHeight / 2);
-      graphics.lineTo(this.tileWidth / 2, 0);
-      graphics.lineTo(this.tileWidth, this.tileHeight / 2);
-      graphics.lineTo(this.tileWidth / 2, this.tileHeight);
-      graphics.closePath();
-      graphics.fillPath();
-      graphics.generateTexture(name, this.tileWidth, this.tileHeight);
-      graphics.destroy();
-    }
-  }
 
-  drawMap(map) {
-    const mapCenterX = this.cameras.main.width / 2;
-    const mapCenterY = this.cameras.main.height / 4;
-    const heightOffset = HEIGHT_OFFSET; // Vertical offset per height level
-
-    // Store tiles for proper depth sorting
-    const tilesToRender = [];
-
-    for (let y = 0; y < this.mapHeight; y++) {
-      for (let x = 0; x < this.mapWidth; x++) {
-        const tileData = map[y][x];
-        const tileType = tileData.type;
-        const tileHeight = tileData.height;
-
-        const isoX = (x - y) * this.tileWidth / 2;
-        const isoY = (x + y) * this.tileHeight / 2 - (tileHeight * heightOffset);
-
-        tilesToRender.push({
-          x: mapCenterX + isoX,
-          y: mapCenterY + isoY,
-          type: tileType,
-          height: tileHeight,
-          sortKey: y * this.mapWidth + x, // Sort by position for drawing from back to front
-          mapX: x,
-          mapY: y
-        });
-      }
-    }
-
-    // Sort tiles for proper rendering order (back to front)
-    tilesToRender.sort((a, b) => a.sortKey - b.sortKey);
-
-    // Render tiles in sorted order
-    tilesToRender.forEach(tileInfo => {
-      const { x: tileX, y: tileY, mapX, mapY, type, height } = tileInfo;
-      const container = this.add.container(tileX, tileY);
-      // Fix depth calculation: higher tiles should have higher depth values to render in front
-      container.setDepth(tileY + (height * heightOffset));
-
-      // Draw tile sides if elevated
-      if (height > 0) {
-        const graphics = this.add.graphics();
-        const tileColor = TILE_COLORS[type];
-        const rightSideColor = Phaser.Display.Color.ValueToColor(tileColor).darken(20).color;
-        const leftSideColor = Phaser.Display.Color.ValueToColor(tileColor).darken(40).color;
-
-        const neighbors = [
-          { x: mapX + 1, y: mapY, side: 'bottom_left' },  // SE
-          { x: mapX, y: mapY + 1, side: 'bottom_right' }, // SW
-          { x: mapX - 1, y: mapY, side: 'top_right' },   // NW
-          { x: mapX, y: mapY - 1, side: 'top_left' }    // NE
-        ];
-
-        neighbors.forEach(n => {
-          let neighborHeight = 0;
-          if (n.x >= 0 && n.x < this.mapWidth && n.y >= 0 && n.y < this.mapHeight) {
-            neighborHeight = map[n.y][n.x].height;
-          }
-
-          if (height > neighborHeight) {
-            const sideHeight = (height - neighborHeight) * heightOffset;
-
-            switch (n.side) {
-              case 'bottom_left': // SE face
-                graphics.fillStyle(rightSideColor, 1);
-                graphics.beginPath();
-                graphics.moveTo(this.tileWidth / 2, 0);
-                graphics.lineTo(0, this.tileHeight / 2);
-                graphics.lineTo(0, this.tileHeight / 2 + sideHeight);
-                graphics.lineTo(this.tileWidth / 2, sideHeight);
-                graphics.closePath();
-                graphics.fillPath();
-                break;
-              case 'bottom_right': // SW face
-                graphics.fillStyle(leftSideColor, 1);
-                graphics.beginPath();
-                graphics.moveTo(-this.tileWidth / 2, 0);
-                graphics.lineTo(0, this.tileHeight / 2);
-                graphics.lineTo(0, this.tileHeight / 2 + sideHeight);
-                graphics.lineTo(-this.tileWidth / 2, sideHeight);
-                graphics.closePath();
-                graphics.fillPath();
-                break;
-              case 'top_right': // NW face
-                graphics.fillStyle(leftSideColor, 1);
-                graphics.beginPath();
-                graphics.moveTo(-this.tileWidth / 2, 0);
-                graphics.lineTo(0, -this.tileHeight / 2);
-                graphics.lineTo(0, -this.tileHeight / 2 + sideHeight);
-                graphics.lineTo(-this.tileWidth / 2, sideHeight);
-                graphics.closePath();
-                graphics.fillPath();
-                break;
-              case 'top_left': // NE face
-                graphics.fillStyle(rightSideColor, 1);
-                graphics.beginPath();
-                graphics.moveTo(this.tileWidth / 2, 0);
-                graphics.lineTo(0, -this.tileHeight / 2);
-                graphics.lineTo(0, -this.tileHeight / 2 + sideHeight);
-                graphics.lineTo(this.tileWidth / 2, sideHeight);
-                graphics.closePath();
-                graphics.fillPath();
-                break;
-            }
-          }
-        });
-
-        container.add(graphics);
-      }
-
-      // Draw tile top
-      const tileTop = this.add.image(0, 0, type);
-      tileTop.setOrigin(0.5, 0.5);
-      container.add(tileTop);
-    });
-
-    // Center camera on the map
-    const totalHeight = (this.mapWidth + this.mapHeight) * this.tileHeight / 2;
-    this.cameras.main.centerOn(mapCenterX, mapCenterY + totalHeight / 2 - this.tileHeight / 2);
-  }
 }
 
 const config = {

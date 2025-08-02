@@ -184,3 +184,17 @@ Design solution: Enhanced the README.md with comprehensive testing documentation
 - **Coverage Instructions**: Detailed explanation of coverage report generation (`npm run coverage`) and the three output formats
 
 This improves developer onboarding and encourages test-driven development by making testing capabilities visible and accessible through clear documentation.
+
+## 02/08/2025
+
+Design problem: The terrain rendering logic was embedded in the main game scene (main.js), making it difficult to test, maintain, and reuse the terrain rendering functionality independently from the game scene.
+
+Design solution: Extracted terrain rendering logic into a dedicated TerrainRenderer class in the terrain module:
+
+- **TerrainRenderer Class**: New class in js/terrain/terrain.js that encapsulates all terrain rendering logic including tile texture generation and map rendering
+- **Separation of Concerns**: Clear separation between terrain generation (existing) and terrain rendering (new TerrainRenderer class)
+- **Configurable Rendering**: TerrainRenderer accepts configuration for tile dimensions, map size, and height offset, making it flexible and reusable
+- **Comprehensive Testing**: Added 12 new unit tests covering TerrainRenderer constructor, texture generation, map rendering, depth calculations, and integration with generated map data
+- **Main Scene Simplification**: Reduced main.js from 252 to 118 lines by removing terrain rendering methods and using TerrainRenderer instance
+
+The TerrainRenderer provides methods for `generateTileTextures()` and `renderMap()` that handle all isometric rendering logic including proper depth sorting, 3D tile side rendering, and camera positioning. This separation improves code organization, testability, and makes terrain rendering logic reusable for future features like mini-maps or level editors.
