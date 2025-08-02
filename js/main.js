@@ -148,7 +148,8 @@ class GameScene extends Phaser.Scene {
     tilesToRender.forEach(tileInfo => {
       const { x: tileX, y: tileY, mapX, mapY, type, height } = tileInfo;
       const container = this.add.container(tileX, tileY);
-      container.setDepth(tileY);
+      // Fix depth calculation: higher tiles should have higher depth values to render in front
+      container.setDepth(tileY + (height * heightOffset));
 
       // Draw tile sides if elevated
       if (height > 0) {

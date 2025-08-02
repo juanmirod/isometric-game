@@ -119,3 +119,15 @@ Design solution: A complete rework of the wall rendering logic in `js/main.js` w
 - **Corrected Isometric Geometry**: The vertex coordinates for all four faces of the tile walls were recalculated to accurately reflect the isometric perspective. This fixed all geometric distortions and ensures that the tiles now look like solid, correctly-shaped blocks.
 - **Consistent Shading**: The shading for each wall face (NE, NW, SE, SW) was made consistent, with proper light and dark tones to give a convincing illusion of depth and a single light source.
 - **Robust and Final Implementation**: This solution is the result of a thorough analysis of the isometric projection and corrects all previous flaws. The terrain now renders as a seamless, solid, and visually coherent 3D environment.
+
+## 02/08/2025
+
+Design problem: There was a critical depth sorting bug where tiles at level 0 were overlapping and rendering in front of tiles at level 2, creating incorrect visual layering in the isometric view.
+
+Design solution: Fixed the depth calculation in the main.js rendering system:
+
+- **Root Cause**: The depth was being set to `tileY` which included a negative height offset `- (tileHeight * heightOffset)`. This caused higher tiles to have lower depth values and render behind lower tiles.
+- **Solution**: Changed the depth calculation from `container.setDepth(tileY)` to `container.setDepth(tileY + (height * heightOffset))`. Now higher tiles correctly have higher depth values and render in front of lower tiles.
+- **Height Configuration Fix**: Corrected the SNOW tile height from level 3 to level 2 to match the design specification that heights should be 0-2.
+
+This ensures proper isometric depth ordering where elevated terrain correctly appears in front of lower terrain, creating the expected 3D visual hierarchy.
