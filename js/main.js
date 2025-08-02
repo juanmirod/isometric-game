@@ -3,6 +3,7 @@ import { generateMap, TerrainRenderer } from './terrain/terrain.js';
 import { generateTreeTexture } from './tree.js';
 import { TreeManager } from './trees/trees.js';
 import { NPCManager } from './npcs/npcs.js';
+import { TentManager } from './tents/tents.js';
 import {
   TILE_WIDTH,
   TILE_HEIGHT,
@@ -57,6 +58,17 @@ class GameScene extends Phaser.Scene {
     // Generate trees on the map with climate information
     this.treeManager.generateTrees(terrainData.map, terrainData.metadata.climate);
 
+    // Initialize tent manager
+    this.tentManager = new TentManager(this, {
+      mapWidth: this.mapWidth,
+      mapHeight: this.mapHeight,
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight,
+      mapCenterX: mapCenterX,
+      mapCenterY: mapCenterY,
+      mapData: terrainData.map
+    });
+
     // Initialize NPC manager
     this.npcManager = new NPCManager(this, {
       mapWidth: this.mapWidth,
@@ -67,6 +79,7 @@ class GameScene extends Phaser.Scene {
       mapCenterY: mapCenterY,
       mapData: terrainData.map,
       treeManager: this.treeManager,
+      tentManager: this.tentManager,
       maxNpcs: 300,
       spawnInterval: 2000 // 8 seconds
     });
@@ -85,6 +98,7 @@ class GameScene extends Phaser.Scene {
     this.add.text(10, 90, `Coastline: ${hasCoastline ? 'Yes' : 'No'}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
     this.add.text(10, 110, `Trees: ${this.treeManager.getTreeCount()}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
     this.add.text(10, 130, `NPCs: ${this.npcManager.getNPCCount()}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
+    this.add.text(10, 150, `Tents: ${this.tentManager.getTentCount()}`, { font: '16px Courier', fill: '#ffffff' }).setScrollFactor(0);
   }
 
   update(time) {
@@ -93,7 +107,7 @@ class GameScene extends Phaser.Scene {
       this.npcManager.update(time);
     }
 
-    const speed = 10;
+    const speed = 20;
     if (this.cursors.left.isDown) {
       this.cameras.main.scrollX -= speed;
     } else if (this.cursors.right.isDown) {

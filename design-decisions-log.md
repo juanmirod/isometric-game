@@ -198,3 +198,19 @@ Design solution: Extracted terrain rendering logic into a dedicated TerrainRende
 - **Main Scene Simplification**: Reduced main.js from 252 to 118 lines by removing terrain rendering methods and using TerrainRenderer instance
 
 The TerrainRenderer provides methods for `generateTileTextures()` and `renderMap()` that handle all isometric rendering logic including proper depth sorting, 3D tile side rendering, and camera positioning. This separation improves code organization, testability, and makes terrain rendering logic reusable for future features like mini-maps or level editors.
+
+## 02/08/2025
+
+Design problem: NPCs needed to perform actions when they found nice places to settle, creating static objects that would remain in the game world to show their settlement. The game required a tent system that NPCs could create and place when they transition from searching to settled state.
+
+Design solution: Created a comprehensive tent system following the established patterns in the codebase:
+
+- **Tent Class**: Individual tent objects representing static 60x60 yellow squares with proper isometric positioning and depth sorting. Tents are created once and remain static throughout the game.
+- **TentManager Class**: Manages all tents in the game with methods for creation, tracking, and removal. Provides centralized tent management similar to TreeManager and NPCManager patterns.
+- **NPC Integration**: Enhanced NPC behavior to automatically create tents when transitioning to PLACE_FOUND state. Tents are positioned to the right of the NPC's location in map coordinates.
+- **Visual Integration**: Tents use proper depth sorting (+15000) to appear above terrain but below trees (+10000) and NPCs (+20000), ensuring correct rendering order in the isometric view.
+- **Error Handling**: Added robust bounds checking and error handling for tent creation, including validation of position limits and map data availability.
+- **Testing**: Comprehensive unit tests (33 tests) covering tent creation, positioning, manager functionality, and integration with NPC behavior.
+- **Constants Integration**: Added tent size and color constants to the centralized const.js file following the established pattern.
+
+The tent system integrates seamlessly with existing game systems, using terrain height data for positioning, integrating with the NPC state machine, and following the same architectural patterns as trees and terrain systems. This creates a cohesive game world where NPCs demonstrate purposeful behavior by creating permanent settlements when they find suitable locations.

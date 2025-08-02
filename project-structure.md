@@ -26,9 +26,15 @@ This project is an isometric game built with Phaser.
 
 - **`js/npcs/`**: This folder contains the NPC (Non-Player Character) system:
 
-  - **`npcs.js`**: NPC and NPCManager classes implementing state machine behavior, intelligent spawning, and smooth, tween-based movement for NPCs that search for nice places near trees
-  - **`npcs.test.js`**: Comprehensive unit tests covering NPC state transitions, movement validation, place evaluation, and manager functionality
+  - **`npcs.js`**: NPC and NPCManager classes implementing state machine behavior, intelligent spawning, smooth tween-based movement, and tent creation when NPCs find nice places near trees
+  - **`npcs.test.js`**: Comprehensive unit tests covering NPC state transitions, movement validation, place evaluation, tent setup functionality, and manager functionality
   - **`README.md`**: Complete documentation of the NPC system API, state machines, and integration guide
+
+- **`js/tents/`**: This folder contains the tent management system:
+
+  - **`tents.js`**: Tent and TentManager classes for static tent objects that NPCs create when they settle. Handles tent creation, positioning, and tracking with proper isometric rendering
+  - **`tents.test.js`**: Comprehensive unit tests covering tent creation, positioning, depth sorting, and manager functionality
+  - **`README.md`**: Complete documentation of the tent system API and integration with NPCs
 
 - **`vite.config.js`**: This is the configuration file for Vite, a modern build tool that provides a faster and leaner development experience for web projects.
 

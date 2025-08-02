@@ -527,6 +527,158 @@ describe('NPC', () => {
     });
   });
 
+  describe('setupTent', () => {
+    it('should create a tent to the right of the NPC when tent manager is available', () => {
+      const mockTentManager = {
+        createTent: vi.fn().mockReturnValue({ getId: () => 123 })
+      };
+
+      // Create larger map data for this test
+      const largeMapData = [];
+      for (let y = 0; y < 10; y++) {
+        largeMapData[y] = [];
+        for (let x = 0; x < 10; x++) {
+          largeMapData[y][x] = { type: TILE_TYPES.GRASS, height: 0 };
+        }
+      }
+
+      const npc = new NPC(1, mockScene, {
+        mapX: 5,
+        mapY: 3,
+        mapWidth: 10,
+        mapHeight: 10,
+        mapData: largeMapData,
+        tentManager: mockTentManager
+      });
+
+      npc.setupTent();
+
+      expect(mockTentManager.createTent).toHaveBeenCalledWith(6, 3); // mapX + 1, mapY
+      expect(npc.tentId).toBe(123);
+    });
+
+    it('should not create tent when tent manager is not available', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+
+      // Create larger map data for this test
+      const largeMapData = [];
+      for (let y = 0; y < 10; y++) {
+        largeMapData[y] = [];
+        for (let x = 0; x < 10; x++) {
+          largeMapData[y][x] = { type: TILE_TYPES.GRASS, height: 0 };
+        }
+      }
+
+      const npc = new NPC(1, mockScene, {
+        mapX: 5,
+        mapY: 3,
+        mapData: largeMapData,
+        tentManager: null
+      });
+
+      npc.setupTent();
+
+      expect(consoleSpy).toHaveBeenCalledWith('NPC 1 cannot setup tent - no tent manager available');
+      expect(npc.tentId).toBeNull();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should not create tent when position would be out of bounds', () => {
+      const mockTentManager = {
+        createTent: vi.fn()
+      };
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+
+      // Create larger map data for this test
+      const largeMapData = [];
+      for (let y = 0; y < 10; y++) {
+        largeMapData[y] = [];
+        for (let x = 0; x < 10; x++) {
+          largeMapData[y][x] = { type: TILE_TYPES.GRASS, height: 0 };
+        }
+      }
+
+      const npc = new NPC(1, mockScene, {
+        mapX: 9, // Near the right edge
+        mapY: 3,
+        mapWidth: 10,
+        mapHeight: 10,
+        mapData: largeMapData,
+        tentManager: mockTentManager
+      });
+
+      npc.setupTent();
+
+      expect(mockTentManager.createTent).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('NPC 1 cannot setup tent - position out of bounds');
+      expect(npc.tentId).toBeNull();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle tent creation failure gracefully', () => {
+      const mockTentManager = {
+        createTent: vi.fn().mockReturnValue(null) // Simulates creation failure
+      };
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+
+      // Create larger map data for this test
+      const largeMapData = [];
+      for (let y = 0; y < 10; y++) {
+        largeMapData[y] = [];
+        for (let x = 0; x < 10; x++) {
+          largeMapData[y][x] = { type: TILE_TYPES.GRASS, height: 0 };
+        }
+      }
+
+      const npc = new NPC(1, mockScene, {
+        mapX: 5,
+        mapY: 3,
+        mapWidth: 10,
+        mapHeight: 10,
+        mapData: largeMapData,
+        tentManager: mockTentManager
+      });
+
+      npc.setupTent();
+
+      expect(mockTentManager.createTent).toHaveBeenCalledWith(6, 3);
+      expect(consoleSpy).toHaveBeenCalledWith('NPC 1 failed to create tent at (6, 3)');
+      expect(npc.tentId).toBeNull();
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('checkCurrentPosition', () => {
+    it('should setup tent when nice place is found', () => {
+      const mockTreeManager = {
+        getTreesInRadius: vi.fn().mockReturnValue([{ id: 1 }])
+      };
+      const mockTentManager = {
+        createTent: vi.fn().mockReturnValue({ getId: () => 456 })
+      };
+
+      const npc = new NPC(1, mockScene, {
+        mapX: 2,
+        mapY: 2,
+        mapData: testMapData,
+        treeManager: mockTreeManager,
+        tentManager: mockTentManager
+      });
+
+      // Set up map data to have grass tile (nice place)
+      testMapData[2][2] = { type: TILE_TYPES.GRASS, height: 0 };
+
+      npc.checkCurrentPosition();
+
+      expect(npc.getState()).toBe(NPC_STATES.PLACE_FOUND);
+      expect(mockTentManager.createTent).toHaveBeenCalledWith(3, 2); // Tent created to the right
+      expect(npc.tentId).toBe(456);
+    });
+  });
+
   describe('getPosition', () => {
     it('should return the current position', () => {
       const npc = new NPC(1, mockScene, {

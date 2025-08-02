@@ -54,6 +54,8 @@ export class NPC {
     // References to game data
     this.mapData = config.mapData || [];
     this.treeManager = config.treeManager || null;
+    this.tentManager = config.tentManager || null;
+    this.tentId = null; // ID of tent created by this NPC
 
     this.createSprite();
   }
@@ -104,7 +106,37 @@ export class NPC {
   checkCurrentPosition() {
     if (this.isNicePlace(this.mapX, this.mapY)) {
       this.state = NPC_STATES.PLACE_FOUND;
-      console.log(`NPC ${this.id} found a nice place at (${this.mapX}, ${this.mapY})`);
+      this.setupTent();
+      console.log(`NPC ${this.id} found a nice place at (${this.mapX}, ${this.mapY}) and set up a tent`);
+    }
+  }
+
+  /**
+   * Sets up a tent next to the NPC when they find a nice place
+   */
+  setupTent() {
+    if (!this.tentManager) {
+      console.warn(`NPC ${this.id} cannot setup tent - no tent manager available`);
+      return;
+    }
+
+    // Calculate tent position (to the right of NPC)
+    const tentX = this.mapX + 1;
+    const tentY = this.mapY;
+
+    // Check if tent position is valid (within bounds)
+    if (tentX >= this.mapWidth) {
+      console.warn(`NPC ${this.id} cannot setup tent - position out of bounds`);
+      return;
+    }
+
+    // Create the tent
+    const tent = this.tentManager.createTent(tentX, tentY);
+    if (tent) {
+      this.tentId = tent.getId();
+      console.log(`NPC ${this.id} set up tent ${this.tentId} at (${tentX}, ${tentY})`);
+    } else {
+      console.warn(`NPC ${this.id} failed to create tent at (${tentX}, ${tentY})`);
     }
   }
 
@@ -256,6 +288,22 @@ export class NPC {
    * Converts map coordinates to isometric screen coordinates
    */
   mapToIsometric(mapX, mapY) {
+    // Check bounds to prevent undefined access
+    if (mapY < 0 || mapY >= this.mapHeight || mapX < 0 || mapX >= this.mapWidth ||
+      !this.mapData || !this.mapData[mapY] || !this.mapData[mapY][mapX]) {
+      // Use default height of 0 for out-of-bounds or missing data
+      const tileHeight = 0;
+      const heightOffset = 20;
+
+      const isoX = (mapX - mapY) * this.tileWidth / 2;
+      const isoY = (mapX + mapY) * this.tileHeight / 2 - (tileHeight * heightOffset);
+
+      return {
+        x: this.mapCenterX + isoX,
+        y: this.mapCenterY + isoY
+      };
+    }
+
     const tileData = this.mapData[mapY][mapX];
     const tileHeight = tileData.height;
     const heightOffset = 20; // Same as terrain rendering
@@ -328,6 +376,7 @@ export class NPCManager {
     this.nextNpcId = 1;
     this.mapData = config.mapData || [];
     this.treeManager = config.treeManager || null;
+    this.tentManager = config.tentManager || null;
 
     // NPC spawning configuration
     this.spawnConfig = {
@@ -372,7 +421,8 @@ export class NPCManager {
       mapCenterX: this.mapCenterX,
       mapCenterY: this.mapCenterY,
       mapData: this.mapData,
-      treeManager: this.treeManager
+      treeManager: this.treeManager,
+      tentManager: this.tentManager
     };
 
     const npc = new NPC(this.nextNpcId++, this.scene, npcConfig);
