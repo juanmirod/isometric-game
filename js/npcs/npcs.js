@@ -4,6 +4,15 @@
  */
 
 import { TILE_TYPES } from '../terrain/terrain.js';
+import {
+  TILE_WIDTH,
+  TILE_HEIGHT,
+  NPC_WIDTH,
+  NPC_HEIGHT,
+  NPC_COLOR,
+  DEFAULT_MAP_WIDTH,
+  DEFAULT_MAP_HEIGHT
+} from '../const.js';
 
 // NPC states
 export const NPC_STATES = {
@@ -30,15 +39,15 @@ export class NPC {
     this.isMoving = false;
 
     // NPC appearance
-    this.width = config.width || 40;
-    this.height = config.height || 60; // Shorter than trees
-    this.color = config.color || 0xff0000; // Red color
+    this.width = config.width || NPC_WIDTH;
+    this.height = config.height || NPC_HEIGHT; // Shorter than trees
+    this.color = config.color || NPC_COLOR; // Red color
 
     // Map references
-    this.mapWidth = config.mapWidth || 50;
-    this.mapHeight = config.mapHeight || 50;
-    this.tileWidth = config.tileWidth || 256;
-    this.tileHeight = config.tileHeight || 128;
+    this.mapWidth = config.mapWidth || DEFAULT_MAP_WIDTH;
+    this.mapHeight = config.mapHeight || DEFAULT_MAP_HEIGHT;
+    this.tileWidth = config.tileWidth || TILE_WIDTH;
+    this.tileHeight = config.tileHeight || TILE_HEIGHT;
     this.mapCenterX = config.mapCenterX || scene.cameras.main.width / 2;
     this.mapCenterY = config.mapCenterY || scene.cameras.main.height / 4;
 

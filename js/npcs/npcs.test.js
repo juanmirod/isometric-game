@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NPC, NPCManager, NPC_STATES } from './npcs.js';
 import { TILE_TYPES } from '../terrain/terrain.js';
+import {
+  NPC_WIDTH,
+  NPC_HEIGHT,
+  NPC_COLOR
+} from '../const.js';
 
 // Mock Phaser scene
 const createMockScene = () => ({
@@ -79,9 +84,9 @@ describe('NPC', () => {
       expect(npc.state).toBe(NPC_STATES.SEARCHING);
       expect(npc.mapX).toBe(0);
       expect(npc.mapY).toBe(0);
-      expect(npc.color).toBe(0xff0000);
-      expect(npc.width).toBe(40);
-      expect(npc.height).toBe(60);
+      expect(npc.color).toBe(NPC_COLOR);
+      expect(npc.width).toBe(NPC_WIDTH);
+      expect(npc.height).toBe(NPC_HEIGHT);
     });
 
     it('should create an NPC with custom configuration', () => {

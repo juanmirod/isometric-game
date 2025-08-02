@@ -1,14 +1,22 @@
 import Phaser from 'phaser';
+import {
+  TREE_WIDTH,
+  TREE_HEIGHT,
+  TREE_TRUNK_WIDTH,
+  TREE_TRUNK_HEIGHT,
+  TREE_TRUNK_COLOR,
+  TREE_LEAVES_COLOR
+} from './const.js';
 
 export function generateTreeTexture(scene, options) {
   const {
     name = 'tree',
-    width = 64,
-    height = 128,
-    trunkWidth = 16,
-    trunkHeight = 40,
-    trunkColor = 0x8B4513, // SaddleBrown
-    leavesColor = 0x228B22, // ForestGreen
+    width = TREE_WIDTH,
+    height = TREE_HEIGHT,
+    trunkWidth = TREE_TRUNK_WIDTH,
+    trunkHeight = TREE_TRUNK_HEIGHT,
+    trunkColor = TREE_TRUNK_COLOR, // SaddleBrown
+    leavesColor = TREE_LEAVES_COLOR, // ForestGreen
     leavesShape = 'circle' // or 'triangle'
   } = options;
 

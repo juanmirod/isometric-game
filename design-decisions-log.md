@@ -143,3 +143,18 @@ Design solution: Doubled the size of all visual elements to provide better visua
 - NPCs: Increased from 20x30 to 40x60 pixels
 
 Updated all size constants across the codebase (main.js, tree.js, trees.js, npcs.js) and their corresponding default values to maintain consistency. Updated test expectations to match the new doubled dimensions. This change provides a better foundation for adding detailed sprites while maintaining all existing functionality and proportions.
+
+## 02/08/2025
+
+Design problem: Size constants and configuration values were scattered across multiple files (main.js, tree.js, trees.js, npcs.js), leading to code duplication and making it difficult to maintain consistent sizing. When changing tile sizes, multiple files needed to be updated manually, which is error-prone and violates the DRY principle.
+
+Design solution: Created a centralized constants file (js/const.js) containing all global sizes, colors, and configuration values:
+
+- Tile dimensions: TILE_WIDTH, TILE_HEIGHT
+- Tree dimensions: TREE_WIDTH, TREE_HEIGHT, TREE_TRUNK_WIDTH, TREE_TRUNK_HEIGHT
+- NPC dimensions: NPC_WIDTH, NPC_HEIGHT
+- Color constants: NPC_COLOR, TREE_TRUNK_COLOR, TREE_LEAVES_COLOR, TREE_LEAVES_COLOR_ALT
+- Terrain rendering: HEIGHT_OFFSET
+- Map configuration: DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT
+
+Updated all source files and test files to import and use these constants instead of hardcoded values. This eliminates magic numbers, centralizes configuration, and ensures that size changes only need to be made in one location. The refactoring maintains all existing functionality while significantly improving maintainability and reducing the risk of inconsistencies.

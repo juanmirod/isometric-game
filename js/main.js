@@ -3,20 +3,28 @@ import { generateMap, TILE_COLORS } from './terrain/terrain.js';
 import { generateTreeTexture } from './tree.js';
 import { TreeManager } from './trees/trees.js';
 import { NPCManager } from './npcs/npcs.js';
+import {
+  TILE_WIDTH,
+  TILE_HEIGHT,
+  HEIGHT_OFFSET,
+  DEFAULT_MAP_WIDTH,
+  DEFAULT_MAP_HEIGHT,
+  TREE_LEAVES_COLOR_ALT
+} from './const.js';
 
 class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
-    this.tileWidth = 256;
-    this.tileHeight = 128;
-    this.mapWidth = 50;
-    this.mapHeight = 50;
+    this.tileWidth = TILE_WIDTH;
+    this.tileHeight = TILE_HEIGHT;
+    this.mapWidth = DEFAULT_MAP_WIDTH;
+    this.mapHeight = DEFAULT_MAP_HEIGHT;
   }
 
   preload() {
     this.generateTileTextures();
     generateTreeTexture(this, { name: 'tree_1', leavesShape: 'circle' });
-    generateTreeTexture(this, { name: 'tree_2', leavesShape: 'triangle', leavesColor: 0x006400 });
+    generateTreeTexture(this, { name: 'tree_2', leavesShape: 'triangle', leavesColor: TREE_LEAVES_COLOR_ALT });
   }
 
   create() {
@@ -115,7 +123,7 @@ class GameScene extends Phaser.Scene {
   drawMap(map) {
     const mapCenterX = this.cameras.main.width / 2;
     const mapCenterY = this.cameras.main.height / 4;
-    const heightOffset = 20; // Vertical offset per height level
+    const heightOffset = HEIGHT_OFFSET; // Vertical offset per height level
 
     // Store tiles for proper depth sorting
     const tilesToRender = [];

@@ -8,6 +8,8 @@ This project is an isometric game built with Phaser.
 
 - **`js/main.js`**: This is the core of the game. It initializes the Phaser game engine, sets up the game scene, and contains the main game loop. It handles rendering the map with height-based positioning and trees, implements proper depth sorting for isometric elevation, and manages camera controls for panning and zooming.
 
+- **`js/const.js`**: Centralized constants file containing all global sizes, colors, and configuration values. This eliminates magic numbers and ensures consistent sizing across the entire codebase. Contains tile dimensions, tree/NPC sizes, colors, and terrain rendering constants.
+
 - **`js/terrain/`**: This folder contains all terrain-related modules:
 
   - **`terrain.js`**: Advanced procedural terrain generation system with climate types, rivers, coastlines, sophisticated tile placement rules, and height representation (0-2 levels) for true isometric elevation

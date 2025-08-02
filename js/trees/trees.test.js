@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TreeManager } from './trees.js';
+import { TILE_TYPES } from '../terrain/terrain.js';
+import {
+  TILE_WIDTH,
+  TILE_HEIGHT,
+  DEFAULT_MAP_WIDTH,
+  DEFAULT_MAP_HEIGHT
+} from '../const.js';
 
 // Mock Phaser scene
 const createMockScene = () => ({
@@ -40,10 +47,10 @@ describe('TreeManager', () => {
   describe('constructor', () => {
     it('should initialize with default values', () => {
       const defaultManager = new TreeManager(mockScene);
-      expect(defaultManager.mapWidth).toBe(50);
-      expect(defaultManager.mapHeight).toBe(50);
-      expect(defaultManager.tileWidth).toBe(256);
-      expect(defaultManager.tileHeight).toBe(128);
+      expect(defaultManager.mapWidth).toBe(DEFAULT_MAP_WIDTH);
+      expect(defaultManager.mapHeight).toBe(DEFAULT_MAP_HEIGHT);
+      expect(defaultManager.tileWidth).toBe(TILE_WIDTH);
+      expect(defaultManager.tileHeight).toBe(TILE_HEIGHT);
       expect(defaultManager.trees).toEqual([]);
       expect(defaultManager.defaultTreeConfig.spawnProbability).toBe(0.2);
       expect(defaultManager.treeTypes).toEqual(['tree_1', 'tree_2']);
@@ -78,13 +85,13 @@ describe('TreeManager', () => {
 
   describe('canSpawnTreeOnTile', () => {
     it('should allow trees on grass tiles', () => {
-      expect(treeManager.canSpawnTreeOnTile('grass')).toBe(true);
+      expect(treeManager.canSpawnTreeOnTile(TILE_TYPES.GRASS)).toBe(true);
     });
 
     it('should not allow trees on non-grass tiles', () => {
-      expect(treeManager.canSpawnTreeOnTile('water')).toBe(false);
-      expect(treeManager.canSpawnTreeOnTile('sand')).toBe(false);
-      expect(treeManager.canSpawnTreeOnTile('stone')).toBe(false);
+      expect(treeManager.canSpawnTreeOnTile(TILE_TYPES.WATER)).toBe(false);
+      expect(treeManager.canSpawnTreeOnTile(TILE_TYPES.SAND)).toBe(false);
+      expect(treeManager.canSpawnTreeOnTile(TILE_TYPES.ROCK)).toBe(false);
     });
   });
 
@@ -340,9 +347,9 @@ describe('TreeManager', () => {
       });
 
       const map = [
-        [{ type: 'grass', height: 0 }, { type: 'water', height: 0 }, { type: 'grass', height: 0 }],
-        [{ type: 'sand', height: 0 }, { type: 'grass', height: 0 }, { type: 'rock', height: 1 }],
-        [{ type: 'grass', height: 0 }, { type: 'grass', height: 0 }, { type: 'grass', height: 0 }]
+        [{ type: TILE_TYPES.GRASS, height: 0 }, { type: TILE_TYPES.WATER, height: 0 }, { type: TILE_TYPES.GRASS, height: 0 }],
+        [{ type: TILE_TYPES.SAND, height: 0 }, { type: TILE_TYPES.GRASS, height: 0 }, { type: TILE_TYPES.ROCK, height: 1 }],
+        [{ type: TILE_TYPES.GRASS, height: 0 }, { type: TILE_TYPES.GRASS, height: 0 }, { type: TILE_TYPES.GRASS, height: 0 }]
       ];
 
       // Create a tree manager with the correct dimensions for the test map
@@ -402,7 +409,7 @@ describe('TreeManager', () => {
     });
 
     it('should respect climate-based spawn probabilities', () => {
-      const map = [[{ type: 'grass', height: 0 }]];
+      const map = [[{ type: TILE_TYPES.GRASS, height: 0 }]];
 
       const testTreeManager = new TreeManager(mockScene, {
         mapWidth: 1,

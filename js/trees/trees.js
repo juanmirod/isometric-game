@@ -3,13 +3,20 @@
  * Handles tree positioning, tracking, and removal
  */
 
+import {
+  TILE_WIDTH,
+  TILE_HEIGHT,
+  DEFAULT_MAP_WIDTH,
+  DEFAULT_MAP_HEIGHT
+} from '../const.js';
+
 export class TreeManager {
   constructor(scene, config = {}) {
     this.scene = scene;
-    this.mapWidth = config.mapWidth || 50;
-    this.mapHeight = config.mapHeight || 50;
-    this.tileWidth = config.tileWidth || 256;
-    this.tileHeight = config.tileHeight || 128;
+    this.mapWidth = config.mapWidth || DEFAULT_MAP_WIDTH;
+    this.mapHeight = config.mapHeight || DEFAULT_MAP_HEIGHT;
+    this.tileWidth = config.tileWidth || TILE_WIDTH;
+    this.tileHeight = config.tileHeight || TILE_HEIGHT;
     this.mapCenterX = config.mapCenterX || scene.cameras.main.width / 2;
     this.mapCenterY = config.mapCenterY || scene.cameras.main.height / 4;
 
