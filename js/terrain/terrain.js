@@ -21,7 +21,7 @@ export const TILE_HEIGHTS = {
   [TILE_TYPES.SAND]: 0,
   [TILE_TYPES.GRASS]: 0,
   [TILE_TYPES.ROCK]: [1, 2], // Rock can be level 1 or 2
-  [TILE_TYPES.SNOW]: 2       // Snow is only at level 2
+  [TILE_TYPES.SNOW]: 3       // Snow is only at level 3
 };
 
 export const CLIMATE_TYPES = {

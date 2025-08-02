@@ -133,7 +133,7 @@ export class NPC {
     if (!this.treeManager) return false;
 
     // Check current tile
-    const treesAtPosition = this.treeManager.getTreesInRadius(mapX, mapY, 0.2);
+    const treesAtPosition = this.treeManager.getTreesInRadius(mapX, mapY, 0.5);
     return treesAtPosition.length > 0;
   }
 

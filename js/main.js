@@ -134,21 +134,97 @@ class GameScene extends Phaser.Scene {
           y: mapCenterY + isoY,
           type: tileType,
           height: tileHeight,
-          sortKey: y * this.mapWidth + x - tileHeight * 1000 // Sort by position and height
+          sortKey: y * this.mapWidth + x, // Sort by position for drawing from back to front
+          mapX: x,
+          mapY: y
         });
       }
     }
 
-    // Sort tiles for proper rendering order (back to front, lower to higher)
+    // Sort tiles for proper rendering order (back to front)
     tilesToRender.sort((a, b) => a.sortKey - b.sortKey);
 
     // Render tiles in sorted order
     tilesToRender.forEach(tileInfo => {
-      const tile = this.add.image(tileInfo.x, tileInfo.y, tileInfo.type);
-      tile.setOrigin(0.5, 0.5);
+      const { x: tileX, y: tileY, mapX, mapY, type, height } = tileInfo;
+      const container = this.add.container(tileX, tileY);
+      container.setDepth(tileY);
 
-      // Add depth information for visual debugging (optional)
-      tile.setDepth(tileInfo.height * 100 + tileInfo.sortKey);
+      // Draw tile sides if elevated
+      if (height > 0) {
+        const graphics = this.add.graphics();
+        const tileColor = TILE_COLORS[type];
+        const rightSideColor = Phaser.Display.Color.ValueToColor(tileColor).darken(20).color;
+        const leftSideColor = Phaser.Display.Color.ValueToColor(tileColor).darken(40).color;
+
+        const neighbors = [
+          { x: mapX + 1, y: mapY, side: 'bottom_left' },  // SE
+          { x: mapX, y: mapY + 1, side: 'bottom_right' }, // SW
+          { x: mapX - 1, y: mapY, side: 'top_right' },   // NW
+          { x: mapX, y: mapY - 1, side: 'top_left' }    // NE
+        ];
+
+        neighbors.forEach(n => {
+          let neighborHeight = 0;
+          if (n.x >= 0 && n.x < this.mapWidth && n.y >= 0 && n.y < this.mapHeight) {
+            neighborHeight = map[n.y][n.x].height;
+          }
+
+          if (height > neighborHeight) {
+            const sideHeight = (height - neighborHeight) * heightOffset;
+
+            switch (n.side) {
+              case 'bottom_left': // SE face
+                graphics.fillStyle(rightSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(this.tileWidth / 2, 0);
+                graphics.lineTo(0, this.tileHeight / 2);
+                graphics.lineTo(0, this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+              case 'bottom_right': // SW face
+                graphics.fillStyle(leftSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(-this.tileWidth / 2, 0);
+                graphics.lineTo(0, this.tileHeight / 2);
+                graphics.lineTo(0, this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(-this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+              case 'top_right': // NW face
+                graphics.fillStyle(leftSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(-this.tileWidth / 2, 0);
+                graphics.lineTo(0, -this.tileHeight / 2);
+                graphics.lineTo(0, -this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(-this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+              case 'top_left': // NE face
+                graphics.fillStyle(rightSideColor, 1);
+                graphics.beginPath();
+                graphics.moveTo(this.tileWidth / 2, 0);
+                graphics.lineTo(0, -this.tileHeight / 2);
+                graphics.lineTo(0, -this.tileHeight / 2 + sideHeight);
+                graphics.lineTo(this.tileWidth / 2, sideHeight);
+                graphics.closePath();
+                graphics.fillPath();
+                break;
+            }
+          }
+        });
+
+        container.add(graphics);
+      }
+
+      // Draw tile top
+      const tileTop = this.add.image(0, 0, type);
+      tileTop.setOrigin(0.5, 0.5);
+      container.add(tileTop);
     });
 
     // Center camera on the map

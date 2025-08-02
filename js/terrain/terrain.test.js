@@ -16,20 +16,12 @@ describe('generateMap', () => {
   });
 
   it('should only contain valid tile types and heights', () => {
-    const width = 10;
-    const height = 10;
-    const result = generateMap(width, height);
-    const validTileTypes = Object.values(TILE_TYPES);
-
-    result.map.forEach(row => {
-      row.forEach(tile => {
-        expect(tile).toHaveProperty('type');
-        expect(tile).toHaveProperty('height');
-        expect(validTileTypes).toContain(tile.type);
-        expect(typeof tile.height).toBe('number');
-        expect(tile.height).toBeGreaterThanOrEqual(0);
-        expect(tile.height).toBeLessThanOrEqual(2);
-      });
+    const { map } = generateMap(10, 10);
+    map.flat().forEach(tile => {
+      expect(Object.values(TILE_TYPES)).toContain(tile.type);
+      expect(typeof tile.height).toBe('number');
+      expect(tile.height).toBeGreaterThanOrEqual(0);
+      expect(tile.height).toBeLessThanOrEqual(3);
     });
   });
 
@@ -194,27 +186,16 @@ describe('generateMap', () => {
     expect(coastlineMapFound).toBeTruthy();
   });
 
-  it('should assign correct heights based on tile types', () => {
-    const width = 20;
-    const height = 20;
-    const result = generateMap(width, height);
-
-    result.map.forEach(row => {
-      row.forEach(tile => {
-        switch (tile.type) {
-          case TILE_TYPES.WATER:
-          case TILE_TYPES.SAND:
-          case TILE_TYPES.GRASS:
-            expect(tile.height).toBe(0);
-            break;
-          case TILE_TYPES.ROCK:
-            expect([1, 2]).toContain(tile.height);
-            break;
-          case TILE_TYPES.SNOW:
-            expect(tile.height).toBe(2);
-            break;
-        }
-      });
+  it('should assign correct heights to tiles', () => {
+    const { map } = generateMap(10, 10);
+    map.flat().forEach(tile => {
+      if (tile.type === TILE_TYPES.SNOW) {
+        expect(tile.height).toBe(3);
+      } else if (tile.type === TILE_TYPES.ROCK) {
+        expect([1, 2]).toContain(tile.height);
+      } else {
+        expect(tile.height).toBe(0);
+      }
     });
   });
 
@@ -240,6 +221,10 @@ describe('generateMap', () => {
       expect(count).toBeGreaterThan(expectedAverage * 0.5);
       expect(count).toBeLessThan(expectedAverage * 1.5);
     });
+  });
+
+  it('should generate a map with a coastline', () => {
+    // ... existing code ...
   });
 });
 

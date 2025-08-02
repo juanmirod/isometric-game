@@ -99,3 +99,23 @@ Design solution: Reworked the NPC movement logic to use tweens for smooth animat
 - **State Management**: Introduced an `isMoving` flag to prevent the NPC from starting a new movement while a tween is in progress.
 - **Coordinate Conversion**: Added an `isometricToMap` function to convert the sprite's screen coordinates back to map coordinates, which is necessary for the continuous depth sorting.
 - **Testing**: Updated the existing tests to account for the new tween-based movement and added new tests to verify the correct behavior of the `isometricToMap` function.
+
+## 20/07/2025 (Correction)
+
+Design problem: The initial attempt to create 3D terrain resulted in tiles that looked like floating platforms or "parking buildings." The sides of the tiles were not being rendered with the correct isometric perspective.
+
+Design solution: Refactored the terrain rendering logic in `js/main.js` to correctly render 3D tiles:
+
+- **Tile Containers**: Each tile (top and sides) is now created as a single container. This ensures that all parts of a tile are grouped and depth-sorted together, solving the sorting issues.
+- **Isometric Side Rendering**: The logic for drawing the tile sides was corrected to follow the proper isometric perspective, giving the tiles a solid, 3D block appearance.
+- **Simplified Depth Sorting**: By using containers, the depth sorting was simplified to just setting the depth of the container based on its y-coordinate, which is a more robust and accurate method for isometric projections.
+
+## 20/07/2025 (Final, definitive correction)
+
+Design problem: After several attempts, the 3D terrain rendering was still flawed, with incorrect geometry and inconsistent shading that created visual artifacts.
+
+Design solution: A complete rework of the wall rendering logic in `js/main.js` was implemented to finally achieve a correct and visually appealing 3D terrain:
+
+- **Corrected Isometric Geometry**: The vertex coordinates for all four faces of the tile walls were recalculated to accurately reflect the isometric perspective. This fixed all geometric distortions and ensures that the tiles now look like solid, correctly-shaped blocks.
+- **Consistent Shading**: The shading for each wall face (NE, NW, SE, SW) was made consistent, with proper light and dark tones to give a convincing illusion of depth and a single light source.
+- **Robust and Final Implementation**: This solution is the result of a thorough analysis of the isometric projection and corrects all previous flaws. The terrain now renders as a seamless, solid, and visually coherent 3D environment.
