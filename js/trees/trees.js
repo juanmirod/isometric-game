@@ -8,8 +8,8 @@ export class TreeManager {
     this.scene = scene;
     this.mapWidth = config.mapWidth || 50;
     this.mapHeight = config.mapHeight || 50;
-    this.tileWidth = config.tileWidth || 128;
-    this.tileHeight = config.tileHeight || 64;
+    this.tileWidth = config.tileWidth || 256;
+    this.tileHeight = config.tileHeight || 128;
     this.mapCenterX = config.mapCenterX || scene.cameras.main.width / 2;
     this.mapCenterY = config.mapCenterY || scene.cameras.main.height / 4;
 

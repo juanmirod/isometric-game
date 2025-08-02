@@ -30,15 +30,15 @@ export class NPC {
     this.isMoving = false;
 
     // NPC appearance
-    this.width = config.width || 20;
-    this.height = config.height || 30; // Shorter than trees
+    this.width = config.width || 40;
+    this.height = config.height || 60; // Shorter than trees
     this.color = config.color || 0xff0000; // Red color
 
     // Map references
     this.mapWidth = config.mapWidth || 50;
     this.mapHeight = config.mapHeight || 50;
-    this.tileWidth = config.tileWidth || 128;
-    this.tileHeight = config.tileHeight || 64;
+    this.tileWidth = config.tileWidth || 256;
+    this.tileHeight = config.tileHeight || 128;
     this.mapCenterX = config.mapCenterX || scene.cameras.main.width / 2;
     this.mapCenterY = config.mapCenterY || scene.cameras.main.height / 4;
 

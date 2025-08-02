@@ -80,8 +80,8 @@ describe('NPC', () => {
       expect(npc.mapX).toBe(0);
       expect(npc.mapY).toBe(0);
       expect(npc.color).toBe(0xff0000);
-      expect(npc.width).toBe(20);
-      expect(npc.height).toBe(30);
+      expect(npc.width).toBe(40);
+      expect(npc.height).toBe(60);
     });
 
     it('should create an NPC with custom configuration', () => {

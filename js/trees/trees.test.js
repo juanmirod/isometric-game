@@ -42,8 +42,8 @@ describe('TreeManager', () => {
       const defaultManager = new TreeManager(mockScene);
       expect(defaultManager.mapWidth).toBe(50);
       expect(defaultManager.mapHeight).toBe(50);
-      expect(defaultManager.tileWidth).toBe(128);
-      expect(defaultManager.tileHeight).toBe(64);
+      expect(defaultManager.tileWidth).toBe(256);
+      expect(defaultManager.tileHeight).toBe(128);
       expect(defaultManager.trees).toEqual([]);
       expect(defaultManager.defaultTreeConfig.spawnProbability).toBe(0.2);
       expect(defaultManager.treeTypes).toEqual(['tree_1', 'tree_2']);

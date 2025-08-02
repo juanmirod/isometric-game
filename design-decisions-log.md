@@ -131,3 +131,15 @@ Design solution: Fixed the depth calculation in the main.js rendering system:
 - **Height Configuration Fix**: Corrected the SNOW tile height from level 3 to level 2 to match the design specification that heights should be 0-2.
 
 This ensures proper isometric depth ordering where elevated terrain correctly appears in front of lower terrain, creating the expected 3D visual hierarchy.
+
+## 02/08/2025
+
+Design problem: The visual elements (tiles, trees, and NPCs) were too small to provide sufficient detail for future sprite development. The current sizes (tiles: 128x64, trees: 32x64, NPCs: 20x30) would not allow sprites to show adequate visual detail.
+
+Design solution: Doubled the size of all visual elements to provide better visual fidelity for future sprite integration:
+
+- Tiles: Increased from 128x64 to 256x128 pixels
+- Trees: Increased from 32x64 to 64x128 pixels (with proportional trunk and leaves scaling)
+- NPCs: Increased from 20x30 to 40x60 pixels
+
+Updated all size constants across the codebase (main.js, tree.js, trees.js, npcs.js) and their corresponding default values to maintain consistency. Updated test expectations to match the new doubled dimensions. This change provides a better foundation for adding detailed sprites while maintaining all existing functionality and proportions.

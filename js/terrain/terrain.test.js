@@ -190,7 +190,7 @@ describe('generateMap', () => {
     const { map } = generateMap(10, 10);
     map.flat().forEach(tile => {
       if (tile.type === TILE_TYPES.SNOW) {
-        expect(tile.height).toBe(3);
+        expect(tile.height).toBe(2);
       } else if (tile.type === TILE_TYPES.ROCK) {
         expect([1, 2]).toContain(tile.height);
       } else {

@@ -7,8 +7,8 @@ import { NPCManager } from './npcs/npcs.js';
 class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
-    this.tileWidth = 128;
-    this.tileHeight = 64;
+    this.tileWidth = 256;
+    this.tileHeight = 128;
     this.mapWidth = 50;
     this.mapHeight = 50;
   }
