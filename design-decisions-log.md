@@ -158,3 +158,17 @@ Design solution: Created a centralized constants file (js/const.js) containing a
 - Map configuration: DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT
 
 Updated all source files and test files to import and use these constants instead of hardcoded values. This eliminates magic numbers, centralizes configuration, and ensures that size changes only need to be made in one location. The refactoring maintains all existing functionality while significantly improving maintainability and reducing the risk of inconsistencies.
+
+## 02/08/2025
+
+Design problem: There was no easy way to generate and view code coverage reports to understand test coverage across the project files.
+
+Design solution: Added a comprehensive coverage reporting system using Vitest's built-in coverage capabilities:
+
+- **Coverage Script**: Added `npm run coverage` script to package.json that generates coverage reports using `vitest run --coverage`
+- **Multiple Report Formats**: Configured coverage to generate text (console output), HTML (browser viewing), and JSON formats for different use cases
+- **Smart Exclusions**: Configured to exclude test files (\*.test.js), configuration files, node_modules, and build directories from coverage analysis
+- **Focused Analysis**: Set to only include js/\*_/_.js files to focus coverage on actual source code
+- **Quality Thresholds**: Set 80% coverage thresholds for lines, functions, branches, and statements to maintain code quality standards
+
+This provides developers with immediate console feedback and detailed HTML reports for comprehensive coverage analysis, supporting better test-driven development practices.
