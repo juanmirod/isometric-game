@@ -172,3 +172,15 @@ Design solution: Added a comprehensive coverage reporting system using Vitest's 
 - **Quality Thresholds**: Set 80% coverage thresholds for lines, functions, branches, and statements to maintain code quality standards
 
 This provides developers with immediate console feedback and detailed HTML reports for comprehensive coverage analysis, supporting better test-driven development practices.
+
+## 02/08/2025
+
+Design problem: The README.md file lacked information about the comprehensive testing system and coverage capabilities, making it difficult for new developers to understand how to run tests and view coverage reports.
+
+Design solution: Enhanced the README.md with comprehensive testing documentation:
+
+- **Testing Section**: Added detailed testing documentation explaining the test suite scope (terrain, trees, NPCs)
+- **Test Commands**: Clear instructions for running tests (`npm test`) and watch mode (`npm run test:watch`)
+- **Coverage Instructions**: Detailed explanation of coverage report generation (`npm run coverage`) and the three output formats
+
+This improves developer onboarding and encourages test-driven development by making testing capabilities visible and accessible through clear documentation.
