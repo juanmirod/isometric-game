@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texture Editor</title>
+    <link rel="stylesheet" href="texture-editor.css">
+</head>
+<body>
+    <h1>Texture Editor</h1>
+    <div id="editor-container">
+        <div id="sidebar">
+            <div class="tool">
+                <h3>Color Palette</h3>
+                <select id="palette-picker">
+                    <!-- Palettes will be loaded here -->
+                </select>
+            </div>
+            <div class="tool">
+                <button id="generate-texture">Generate Texture</button>
+            </div>
+            <div class="tool">
+                <h3>Pencil</h3>
+                <div id="pencil-colors">
+                    <!-- Pencil colors will go here -->
+                </div>
+                <input type="range" id="pencil-size" min="1" max="10" value="1">
+            </div>
+             <div class="tool">
+                <button id="download-button">Download Texture</button>
+            </div>
+        </div>
+        <canvas id="editor-canvas" width="256" height="256"></canvas>
+        <div id="preview-container">
+            <h3>Tessellation Preview</h3>
+            <canvas id="preview-canvas" width="256" height="256"></canvas>
+        </div>
+    </div>
+    <script src="js/texture-editor.js"></script>
+</body>
+</html>
